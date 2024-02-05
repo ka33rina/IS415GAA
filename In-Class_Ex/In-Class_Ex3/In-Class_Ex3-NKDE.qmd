@@ -1,0 +1,100 @@
+---
+title: "In-Class_Ex3-NKDE"
+execute:  
+  warning: false
+date: "`r Sys.Date()`"
+---
+
+```{r}
+pacman::p_load(sf, spNetwork, tmap, classInt, viridis, tidyverse)
+
+```
+
+## Data Import
+
+```{r}
+network <- st_read(dsn= 'data_p/geospatial', layer = "Punggol_St")
+childcare <- st_read(dsn='data_p/geospatial', layer= 'Punggol_CC')
+```
+
+```{r}
+str(network)
+str(childcare)
+```
+
+## **Visualising the Geospatial Data**
+
+```{r}
+plot(network)
+plot(childcare,add=T,col='red',pch = 19)
+
+```
+
+```{r}
+tmap_mode('view')
+tm_shape(childcare) + 
+  tm_dots() + 
+  tm_shape(network) +
+  tm_lines()
+tmap_mode('plot')
+
+```
+
+```{r}
+lixels <- lixelize_lines(network,750,mindist = 375)
+```
+
+What can w learned from the code chunk above:
+
+-   The length of a lixel, **lx_length** is set to 750m, and
+
+-   The minimum length of a lixel **mindist** is set to 375m (middle distance)
+
+### Generating line centre points
+
+```{r}
+samples <- lines_center(lixels)
+```
+
+### **Performing NetKDE**
+
+```{r}
+densities <- nkde(network, 
+                  events = childcare,
+                  w = rep(1,nrow(childcare)),
+                  samples = samples,
+                  kernel_name = "quartic",
+                  bw = 300, 
+                  div= "bw", 
+                  method = "simple", 
+                  digits = 1, 
+                  tol = 1,
+                  grid_shape = c(1,1), 
+                  max_depth = 8,
+                  agg = 5, #we aggregate events within a 5m radius (faster calculation)
+                  sparse = TRUE,
+                  verbose = FALSE)
+
+```
+
+#### Visualising NetKDE
+
+```{r}
+samples$density <- densities
+lixels$density <- densities
+
+```
+
+```{r}
+# rescaling to help the mapping
+samples$density <- samples$density*1000
+lixels$density <- lixels$density*1000
+```
+
+```{r}
+tmap_mode('view')
+tm_shape(lixels)+
+  tm_lines(col="density")+
+tm_shape(childcare)+
+  tm_dots()
+```

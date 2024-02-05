@@ -1,0 +1,114 @@
+---
+title: "In-Class_Ex3"
+execute:  
+  warning: false
+date: "`r Sys.Date()`"
+---
+
+```{r}
+#|eval: false
+install.packages("maptools", repos = "https://packagemanager.posit.co/cran/2023-10-13")
+
+
+```
+
+```{r}
+pacman::p_load(maptools, sf, raster, spatstat, tmap,tidyverse)
+
+```
+
+## Spatial Data Wrangling
+
+```{r}
+childcare_sf <- st_read("data/ChildCareServices.geojson")%>%     st_transform(crs = 3414)
+#sg_sf <- st_read(dsn='data', layer='Coastline')
+mpsz_sf <- st_read(dsn='data/geospatial', layer= 'MP14_SUBZONE_WEB_PL')
+
+```
+
+## 
+
+```{r}
+plot(mpsz_sf)
+```
+
+## Creating Coastal Layer
+
+Disolving the map
+
+st_union: will only give 1 polygon
+
+```{r}
+sg_sf <- mpsz_sf %>% 
+  st_union()
+```
+
+Since we do not define the boundary, the map is smaller
+
+```{r}
+plot(sg_sf)
+```
+
+### Creating ppp objects: sf method
+
+```{r}
+childcare_ppp <- as.ppp(childcare_sf)
+
+```
+
+```{r}
+summary(childcare_ppp)
+```
+
+```{r}
+plot(childcare_ppp)
+```
+
+We can check the duplicate in a **ppp** object by using the code chunck below.
+
+any(duplicate(childcare_ppp_jit))
+
+```{r}
+
+
+```
+
+To count the number of co-indicenc
+
+```{r}
+
+```
+
+### Creating ***owin*** object: sf method
+
+```{r}
+sg_owin <- as.owin(sg_sf) 
+```
+
+The output object can be displayed by using *plot*() function
+
+```{r}
+pg <- mpsz_sf %>%
+  filter(PLN_AREA_N == "PUNGGOL")
+tm <- mpsz_sf %>%
+  filter(PLN_AREA_N == "TAMPINES")
+ck <- mpsz_sf %>%
+  filter(PLN_AREA_N == "CHOA CHU KANG")
+jw <- mpsz_sf %>%
+  filter(PLN_AREA_N == "JURONG WEST")
+```
+
+Plotting target planning area
+
+main: labelling of the map
+
+```{r}
+par(mfrow=c(2,2))
+plot(pg, main = "Ponggol")
+plot(tm, main = "Tampines")
+plot(ck, main = "Choa Chu Kang")
+plot(jw, main = "Jurong West")
+```
+
+```         
+```

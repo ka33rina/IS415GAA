@@ -1,0 +1,101 @@
+---
+title: "In-Class Exercise 2"
+format: 
+  html: 
+    code-fold: false 
+    code-summary: "Show the code"
+execute:
+  eval: true  #display the code chunk 
+  echo: true 
+  warning: false
+date: "`r Sys.Date()`"
+---
+
+# Getting Started
+
+In this hands-on exercise, the following R packages will be used:
+
+-   arrow
+
+-   lubridate
+
+-   tidyverse
+
+-   sf
+
+-   tmap
+
+```{r}
+pacman::p_load(arrow, lubridate, tidyverse, sf, tmap)
+```
+
+## Importing Grab-Posisi Dataset
+
+```{r}
+df <- read_parquet("data/GrabPosisi/part-00000-8bbff892-97d2-4011-9961-703e38972569.c000.snappy.parquet")
+```
+
+Convert a code chunk to convert the data type of pingtimestamp from character to date-time
+
+```{r}
+df$pingtimstamp <- as_datetime(df$pingtimestamp)
+
+```
+
+```{r}
+##write_rds(df, "data/rds/part0.rds")
+```
+
+# Extracting trip starting location
+
+Using the steps we learnt before
+
+-   extract trip origin locations
+
+-   derive 3 new columns (i.e. variables) for weekdays, starting hour and day of the month
+
+-   name the output tibble data.frame origin_df
+
+```{r}
+origin_df <- df %>% 
+  group_by(trj_id) %>%
+  arrange(pingtimestamp) %>%
+  filter(row_number()==1) %>%
+  mutate(weekday = wday(pingtimstamp,
+                        label = TRUE,
+                        abbr = TRUE),
+         start_hr = factor(hour(pingtimestamp)),
+         day = factor(mday(pingtimestamp)))
+```
+
+# Extracting trip ending locations
+
+```{r}
+destination_df <- df %>%
+  group_by(trj_id) %>%
+  arrange(desc(pingtimestamp)) %>% 
+  filter(row_number()==1) %>% 
+  mutate(weekday = wday(pingtimestamp,
+                        label = TRUE,
+                        abbr = TRUE),
+         end_hr = factor(hour(pingtimestamp)),
+         day = factor(mday(pingtimestamp)))
+```
+
+#writing rds file
+
+```{r}
+write_rds(origin_df, "data/rds/origin_df.rds")
+write_rds(destination_df, "data/rds/destination_df.rds")
+```
+
+#Importing file (the next time we can use this directly)
+
+```{r}
+origin_df <- read_rds("data/rds/origin_df.rds")
+destination_df <- read_rds("data/rds/destination_df.rds")
+```
+
+```{r}
+read_rds("data/rds/origin_df.rds")
+```
