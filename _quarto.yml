@@ -1,0 +1,57 @@
+project:
+  type: website
+
+website:
+  title: "IS415-GAA"
+  navbar:
+    left: 
+      - text: "Hands-on Exercise"
+        menu: 
+          - text: "Hands-on Excercise 1"
+            href: "Hands-on_Ex/Hands-on_Ex01/Hands-on_Ex01.html"
+          - text: "Hands-on Excercise 2"
+            href: "Hands-on_Ex/Hands-on_Ex02/Hands-on_Ex02.html"
+          - text: "Hands-on Excercise 3"
+            href: "Hands-on_Ex/Hands-on_Ex03/Hands-on_Ex03.html"
+          - text: "Hands-on Excercise 4"
+            href: "Hands-on_Ex/Hands-on_Ex04/Hands-on_Ex04.html"
+          - text: "Hands-on Excercise 5"
+            href: "Hands-on_Ex/Hands-on_Ex05/Hands-on_Ex05.html"
+          - text: "Hands-on Excercise 6"
+            href: "Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.html"
+         
+          
+            
+      - text: "In-Class Exercise"
+        menu: 
+          - text: "In-Class Exercise 2"
+            href: "In-Class_Ex/In-Class_Ex2/In-Class_Ex2.html"
+          - text: "In-Class Exercise 3"
+            href: "In-Class_Ex/In-Class_Ex3/In-Class_Ex3.html"
+          - text: "In-Class Exercise 3-NKDE"
+            href: "In-Class_Ex/In-Class_Ex3/In-Class_Ex3-NKDE.html"
+          - text: "In-Class Exercise 4"
+            href: "In-Class_Ex/In-Class_Ex4/In-Class_Ex4.html"
+          - text: "In-Class Exercise 5"
+            href: "In-Class_Ex/In-Class_Ex5/In-Class_Ex5.html"
+       
+       
+      - text: "Take-home Exercise"
+        menu: 
+          - text: "Take-home_Ex01"
+          
+            
+        
+    right:
+      - href: index.qmd
+        text: Home
+      - about.qmd
+
+format:
+  html:
+    theme: minty
+    css: styles.css
+    toc: true
+
+editor: visual
+
