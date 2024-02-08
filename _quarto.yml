@@ -38,7 +38,11 @@ website:
        
       - text: "Take-home Exercise"
         menu: 
+          - text: "Data Preparation for Take-home_Ex01"
+            href: "Take-home_Ex/Take-home_Ex1/Data_Prep_Take-home_Ex1.html"
           - text: "Take-home_Ex01"
+            href: "Take-home_Ex/Take-home_Ex1/Take-home_Ex1.html"
+       
           
             
         
