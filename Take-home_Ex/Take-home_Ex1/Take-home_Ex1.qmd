@@ -1,0 +1,385 @@
+---
+title: "Take-home_Ex1"
+execute:  
+  warning: false
+date: "`r Sys.Date()`" 
+---
+
+# Getting Started
+
+```{r}
+pacman::p_load(arrow, lubridate, tidyverse,maptools, sf, spNetwork, raster, spatstat, tmap)
+
+
+```
+
+## 1. Loading of Data
+
+### 1.1 Loading of grab data frame
+
+```{r}
+#|eval: false
+grab_df <- read_parquet("data/GrabPosisi/part-00000-8bbff892-97d2-4011-9961-703e38972569.c000.snappy.parquet")
+
+```
+
+### 1.2 Loading of Road data set from OpenStreetMap
+
+```{r}
+#|eval: false
+road_data <- st_read(dsn = "data/malaysia-singapore-brunei-latest-free.shp", 
+                     layer = "gis_osm_roads_free_1")
+```
+
+**Checking the CRS of road data**
+
+```{r}
+#|eval: false
+st_crs(road_data)
+```
+
+**This is a wrong EPSG code because the correct EPSG code for svy21 should be 3414. Since it indicates that EPSG is 4326, we need to change the EPSG code into 3414.**
+
+```{r}
+#|eval: false
+road_data_3414 <- st_transform(road_data, 3414)
+```
+
+```{r}
+#|eval: false
+#plot(road_data_3414)
+```
+
+### 1.3 Loading of Master Plan 2019 Subzone Boundary (No Sea) from Data.gov.sg
+
+```{r}
+mpsz <- st_read(dsn = "data/MPSZ-2019", 
+                layer = "MPSZ-2019")
+```
+
+**Checking the Coordination of mpsz_sf**
+
+```{r}
+st_crs(mpsz)
+```
+
+**This is a wrong EPSG code because the correct EPSG code for svy21 should be 3414. Since it indicates that EPSG is 4326, we need to change the EPSG code into 3414.**
+
+```{r}
+mpsz3414 <- st_transform(mpsz, 3414)
+```
+
+```{r}
+st_crs(mpsz3414)
+```
+
+```{r}
+#|eval: false
+#plot(mpsz3414)
+```
+
+```{r}
+#|eval: false
+#plot(st_geometry(mpsz3414))
+```
+
+## 2. Reading Data 
+
+### 2.1 Reading grab origin data  
+
+```{r}
+sf_grab_origin_data <- read_rds("data/rds/sf_grab_origin_data.rds")
+```
+
+```{r}
+#summary(sf_grab_origin_data)
+
+```
+
+```{r}
+tmap_mode('view')
+tm_shape(sf_grab_origin_data)+
+  tm_dots()
+```
+
+### 2.2 Reading the roads data in sg 
+
+```{r}
+sf_roads_in_sg <- read_rds("data/rds/sf_roads_in_sg.rds")
+```
+
+```{r}
+#|eval: false
+#plot(map_without_outer_islands$geometry, main = "Roads in Singapore")
+#plot(roads_in_singapore$geometry, add = TRUE, col = "red")
+```
+
+### 2.3 Extracting Singapore boundary layer excluding outer islands
+
+```{r}
+outer_islands <- mpsz3414[grep("island", mpsz3414$PLN_AREA_N, ignore.case = TRUE), ]
+print(outer_islands)
+
+```
+
+```{r}
+#|eval: false
+plot(outer_islands)
+```
+
+```{r}
+merged_map <- st_union(mpsz3414, outer_islands)
+```
+
+```{r}
+#|eval: false
+plot(merged_map)
+```
+
+```{r}
+map_without_outer_islands <- st_difference(mpsz3414, st_union(outer_islands))
+```
+
+```{r}
+#|eval: false
+plot(map_without_outer_islands)
+```
+
+```{r}
+sf_map_without_outer_islands <- st_cast(map_without_outer_islands, "POLYGON")
+```
+
+## 3. Traditional Kernel Density Estimation layers
+
+To reduce the data size and focus on one specific area, I will be doing the analysis on Punggol town.
+
+### 3.1 Creating Sg_boundary owin object
+
+```{r}
+sg_sf <- sf_map_without_outer_islands %>% 
+  st_union()
+```
+
+```{r}
+#|eval: false
+plot(sg_sf)
+```
+
+```{r}
+grab_origin_ppp <- as.ppp(sf_grab_origin_data)
+```
+
+```{r}
+summary(grab_origin_ppp)
+```
+
+```{r}
+#|eval: false
+plot(grab_origin_ppp)
+```
+
+```{r}
+summary(grab_origin_ppp)
+```
+
+```{r}
+sg_owin <- as.owin(sg_sf) 
+summary(sg_owin)
+```
+
+```{r}
+sg_grab_origin_ppp = grab_origin_ppp[sg_owin]
+summary(sg_grab_origin_ppp)
+```
+
+```         
+```
+
+```{r}
+#|eval: false
+plot(sg_grab_origin_ppp)
+```
+
+```{r}
+kde_grab_bw <- density(sg_grab_origin_ppp,
+                              sigma=bw.diggle,
+                              edge=TRUE,
+                            kernel="gaussian") 
+
+```
+
+```{r}
+plot(kde_grab_bw)
+```
+
+## 4. Network Kernel Density Estimation (NKDE) or Temporal Network Kernel Density Estimation (TNKDE)
+
+```{r}
+pg <- mpsz3414 %>%
+  filter(PLN_AREA_N == "PUNGGOL")
+
+```
+
+```{r}
+plot(pg, main = "Punggol")
+```
+
+```{r}
+#|eval: False
+roads_in_punggol <- st_intersection(sf_roads_in_sg, pg)
+```
+
+```{r}
+#|eval: False
+write_rds(roads_in_punggol, "data/rds/roads_in_punggol.rds")
+```
+
+```{r}
+roads_in_punggol <- read_rds("data/rds/roads_in_punggol.rds")
+```
+
+```{r}
+plot(roads_in_punggol)
+```
+
+```{r}
+#|eval: False
+grab_in_punggol <- st_intersection(sf_grab_origin_data, pg)
+
+```
+
+```{r}
+#|eval: False
+write_rds(grab_in_punggol, "data/rds/grab_in_punggol.rds")
+
+```
+
+```{r}
+grab_in_punggol <- read_rds("data/rds/grab_in_punggol.rds")
+```
+
+```{r}
+plot(grab_in_punggol)
+```
+
+```{r}
+#grab_road_in_pg <- st_intersection(sf_roads_in_sg,grab_in_punggol)
+```
+
+```{r}
+#grab_road_in_pg <- st_intersection(grab_in_punggol, roads_in_punggol)
+```
+
+```{r}
+#plot(grab_road_in_pg)
+```
+
+```{r}
+#grab_road_in_pg <- grab_road_in_pg[st_is_empty(grab_road_in_pg$geometry) == FALSE, ]
+
+```
+
+```{r}
+tmap_mode('view')
+tm_shape(roads_in_punggol, geometry_type = "lines") + 
+  tm_lines()
+
+  
+```
+
+```{r}
+tmap_mode('view')
+
+# Plot roads
+tm_shape(roads_in_punggol, geometry_type = "lines") + 
+  tm_lines(lwd = 1, col = "blue") +
+  
+  # Plot Punggol area boundary
+  tm_shape(pg) +
+  tm_borders() +
+  
+  # Plot Grab origin data
+  tm_shape(grab_in_punggol) +
+  tm_dots()
+```
+
+```{r}
+tmap_mode('plot')
+```
+
+```{r}
+roads_lines <- roads_in_punggol[st_geometry_type(roads_in_punggol) == "LINESTRING", ]
+
+# Apply lixelize_lines with mindist
+lixels <- lixelize_lines(roads_lines,5000, mindist = 2500)
+```
+
+```{r}
+samples <- lines_center(lixels)
+```
+
+```{r}
+densities <- nkde(roads_lines, 
+                  events = grab_in_punggol,
+                  w = rep(1,nrow(grab_in_punggol)),
+                  samples = samples,
+                  kernel_name = "quartic",
+                  bw = 300, 
+                  div= "bw", 
+                  method = "simple", 
+                  digits = 1, 
+                  tol = 1,
+                  grid_shape = c(1,1), 
+                  max_depth = 8,
+                  agg = 5, #we aggregate events within a 5m radius (faster calculation)
+                  sparse = TRUE,
+                  verbose = FALSE)
+```
+
+```{r}
+samples$density <- densities
+lixels$density <- densities
+```
+
+```{r}
+# rescaling to help the mapping
+samples$density <- samples$density*1000
+lixels$density <- lixels$density*1000
+```
+
+```{r}
+tmap_mode('view')
+tm_shape(lixels)+
+  tm_lines(col="density")+
+tm_shape(grab_in_punggol)+
+  tm_dots()
+```
+
+```{r}
+
+```
+
+```         
+```
+
+## 5. Kernel density layers on openstreetmap of Singapore using tmap
+
+```{r}
+tmap_mode('view')
+
+# Plot roads
+tm_shape(roads_in_punggol, geometry_type = "lines") + 
+  tm_lines(lwd = 1, col = "blue") +
+  
+  # Plot Punggol area boundary
+  tm_shape(pg) +
+  tm_borders() +
+  
+  # Plot Grab origin data
+  tm_shape(grab_in_punggol) +
+  tm_dots()
+```
+
+## 6. Describe the spatial patterns revealed by the kernel density maps
+
+From the density map above, it shows that the crossroads has the highest density among the all other roads. Those are popular pick-up points. This also shows a behaviour of passengers are more likely to take their ride in main streets. This implies that more grab cars will pass by the main streets as well.
