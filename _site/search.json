@@ -264,5 +264,19 @@
     "title": "Data_Prep_Take-home_Ex2",
     "section": "",
     "text": "Getting Started\n\npacman::p_load(arrow, lubridate, tidyverse,maptools, sf, spNetwork, raster, spatstat, tmap)"
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex1/Take-home_Ex1.html",
+    "href": "Take-home_Ex/Take-home_Ex1/Take-home_Ex1.html",
+    "title": "Take-home_Ex1",
+    "section": "",
+    "text": "Getting Started"
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex2/data/geospatial/TAINAN_VILLAGE.html",
+    "href": "Take-home_Ex/Take-home_Ex2/data/geospatial/TAINAN_VILLAGE.html",
+    "title": "IS415-GAA",
+    "section": "",
+    "text": "&lt;!DOCTYPE qgis PUBLIC ‘http://mrcc.com/qgis.dtd’ ‘SYSTEM’&gt;     dataset\n\n\n       GEOGCRS[“TWD97”,DATUM[“Taiwan Datum 1997”,ELLIPSOID[“GRS 1980”,6378137,298.257222101,LENGTHUNIT[“metre”,1]]],PRIMEM[“Greenwich”,0,ANGLEUNIT[“degree”,0.0174532925199433]],CS[ellipsoidal,2],AXIS[“geodetic latitude (Lat)”,north,ORDER[1],ANGLEUNIT[“degree”,0.0174532925199433]],AXIS[“geodetic longitude (Lon)”,east,ORDER[2],ANGLEUNIT[“degree”,0.0174532925199433]],USAGE[SCOPE[“Horizontal component of 3D system.”],AREA[“Taiwan, Republic of China - onshore and offshore - Taiwan Island, Penghu (Pescadores) Islands.”],BBOX[17.36,114.32,26.96,123.61]],ID[“EPSG”,3824]] +proj=longlat +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_defs 27230 3824 EPSG:3824 TWD97 longlat EPSG:7019 true"
   }
 ]
