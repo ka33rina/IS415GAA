@@ -257,5 +257,12 @@
     "title": "IS415-GAA",
     "section": "",
     "text": "Welcome to IS415 Geospatial Analytics and Applications (23-24 T2)\nThis is the course website of IS415. I study this term. You will find my course work on this website."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex2/Data_Prep_Take-home_Ex2.html",
+    "href": "Take-home_Ex/Take-home_Ex2/Data_Prep_Take-home_Ex2.html",
+    "title": "Data_Prep_Take-home_Ex2",
+    "section": "",
+    "text": "Getting Started\n\npacman::p_load(arrow, lubridate, tidyverse,maptools, sf, spNetwork, raster, spatstat, tmap)"
   }
 ]
