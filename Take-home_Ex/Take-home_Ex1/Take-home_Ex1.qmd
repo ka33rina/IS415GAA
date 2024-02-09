@@ -83,9 +83,9 @@ st_crs(mpsz3414)
 #plot(st_geometry(mpsz3414))
 ```
 
-## 2. Reading Data 
+## 2. Reading Data
 
-### 2.1 Reading grab origin data  
+### 2.1 Reading grab origin data
 
 ```{r}
 sf_grab_origin_data <- read_rds("data/rds/sf_grab_origin_data.rds")
@@ -102,7 +102,7 @@ tm_shape(sf_grab_origin_data)+
   tm_dots()
 ```
 
-### 2.2 Reading the roads data in sg 
+### 2.2 Reading the roads data in sg
 
 ```{r}
 sf_roads_in_sg <- read_rds("data/rds/sf_roads_in_sg.rds")
