@@ -1,0 +1,92 @@
+---
+title: "Hands-on_Ex07"
+execute:
+  warning: false 
+date: "r Sys.Date()"
+format: html
+---
+
+# Spatial Point Analysis:
+
+# **5 - 2nd Order Spatial Point Patterns Analysis Methods**
+
+```{r}
+pacman::p_load(maptools, sf, raster, spatstat, tmap)
+
+```
+
+## **5.4 Spatial Data Wrangling**
+
+### **5.4.1 Importing the spatial data**
+
+```{r}
+childcare_sf <- st_read("data/ChildCareServices.geojson") %>%
+  st_transform(crs = 3414)
+```
+
+```{r}
+sg_sf <- st_read(dsn = "data", layer="CostalOutline")
+```
+
+```{r}
+mpsz_sf <- st_read(dsn = "data/Geospatial", 
+                layer = "MP14_SUBZONE_WEB_PL")
+```
+
+### **5.4.2 Mapping the geospatial data sets**
+
+```{r}
+tmap_mode('view')
+```
+
+```{r}
+tm_shape(childcare_sf)+
+  tm_dots()
+```
+
+```{r}
+tmap_mode('plot')
+```
+
+## **5.5 Geospatial Data wrangling**
+
+### **5.5.1 Converting sf data frames to sp’s Spatial\* class**
+
+```{r}
+childcare <- as_Spatial(childcare_sf)
+mpsz <- as_Spatial(mpsz_sf)
+sg <- as_Spatial(sg_sf)
+
+```
+
+```{r}
+childcare
+```
+
+```{r}
+mpsz
+```
+
+```{r}
+sg
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
