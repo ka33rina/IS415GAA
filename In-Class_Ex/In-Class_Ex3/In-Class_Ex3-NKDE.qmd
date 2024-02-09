@@ -13,8 +13,8 @@ pacman::p_load(sf, spNetwork, tmap, classInt, viridis, tidyverse)
 ## Data Import
 
 ```{r}
-network <- st_read(dsn= 'data_p/geospatial', layer = "Punggol_St")
-childcare <- st_read(dsn='data_p/geospatial', layer= 'Punggol_CC')
+network <- st_read(dsn= 'data/geospatial', layer = "Punggol_St")
+childcare <- st_read(dsn='data/geospatial', layer= 'Punggol_CC')
 ```
 
 ```{r}
