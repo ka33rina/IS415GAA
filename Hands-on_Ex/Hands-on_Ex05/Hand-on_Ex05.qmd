@@ -7,7 +7,7 @@ date: "`r Sys.Date()`"
 
 # **9. Global Measures of Spatial Autocorrelation**
 
-## 9.0 Getting Started 
+## 9.0 Getting Started
 
 ```{r}
 pacman::p_load(sf, spdep, tmap, tidyverse)
@@ -27,7 +27,7 @@ hunan2012 <- read_csv("data/aspatial/Hunan_2012.csv")
 
 ```
 
-### **9.3.3 Performing relational join** 
+### **9.3.3 Performing relational join**
 
 ```{r}
 hunan <- left_join(hunan,hunan2012) %>%
