@@ -4,4 +4,4 @@ title: "IS415-GAA"
 
 Welcome to IS415 **Geospatial Analytics** **and Applications (23-24 T2)**
 
-This is the course website of IS415. I study this term. You will find my course work on this website.
+This is the course website of IS415 which I study this term. You will find my course work on this website.
