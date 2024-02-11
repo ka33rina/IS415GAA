@@ -30,3 +30,56 @@ grab_df <- read_parquet("data/GrabPosisi/part-00000-8bbff892-97d2-4011-9961-703e
 road_data <- st_read(dsn = "data/malaysia-singapore-brunei-latest-free.shp", 
                      layer = "gis_osm_roads_free_1")
 ```
+
+**Checking the CRS of road data**
+
+```{r}
+#|eval: false
+st_crs(road_data)
+```
+
+**This is a wrong EPSG code because the correct EPSG code for svy21 should be 3414. Since it indicates that EPSG is 4326, we need to change the EPSG code into 3414.**
+
+```{r}
+#|eval: false
+road_data_3414 <- st_transform(road_data, 3414)
+```
+
+```{r}
+#|eval: false
+#plot(road_data_3414)
+
+```
+
+### 1.3 Loading of Master Plan 2019 Subzone Boundary (No Sea) from Data.gov.sg
+
+```{r}
+mpsz <- st_read(dsn = "data/MPSZ-2019", 
+                layer = "MPSZ-2019")
+```
+
+**Checking the Coordination of mpsz_sf**
+
+```{r}
+st_crs(mpsz)
+```
+
+**This is a wrong EPSG code because the correct EPSG code for svy21 should be 3414. Since it indicates that EPSG is 4326, we need to change the EPSG code into 3414.**
+
+```{r}
+mpsz3414 <- st_transform(mpsz, 3414)
+```
+
+```{r}
+st_crs(mpsz3414)
+```
+
+```{r}
+#|eval: false
+#plot(mpsz3414)
+```
+
+```{r}
+#|eval: false
+#plot(st_geometry(mpsz3414))
+```
