@@ -313,5 +313,19 @@
     "title": "IS415-GAA",
     "section": "",
     "text": "Welcome to IS415 Geospatial Analytics and Applications (23-24 T2)\nThis is the course website of IS415 which I study this term. You will find my course work on this website."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex1/Take-home_Ex1.html",
+    "href": "Take-home_Ex/Take-home_Ex1/Take-home_Ex1.html",
+    "title": "Take-home_Ex1",
+    "section": "",
+    "text": "pacman::p_load(arrow, lubridate, tidyverse,maptools, sf, spNetwork, raster, spatstat, tmap)\n\n\n\n\n\n\n#|eval: false\ngrab_df &lt;- read_parquet(\"data/GrabPosisi/part-00000-8bbff892-97d2-4011-9961-703e38972569.c000.snappy.parquet\")\n\n\n\n\n\n#|eval: false\nroad_data &lt;- st_read(dsn = \"data/malaysia-singapore-brunei-latest-free.shp\", \n                     layer = \"gis_osm_roads_free_1\")\n\nReading layer `gis_osm_roads_free_1' from data source \n  `C:\\Users\\Kachel Lee\\ka33rina\\IS415GAA\\Take-home_Ex\\Take-home_Ex1\\data\\malaysia-singapore-brunei-latest-free.shp' \n  using driver `ESRI Shapefile'\nSimple feature collection with 1766969 features and 10 fields\nGeometry type: LINESTRING\nDimension:     XY\nBounding box:  xmin: 99.66041 ymin: 0.8021131 xmax: 119.2601 ymax: 7.514393\nGeodetic CRS:  WGS 84"
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex1/Take-home_Ex1.html#loading-of-data",
+    "href": "Take-home_Ex/Take-home_Ex1/Take-home_Ex1.html#loading-of-data",
+    "title": "Take-home_Ex1",
+    "section": "",
+    "text": "#|eval: false\ngrab_df &lt;- read_parquet(\"data/GrabPosisi/part-00000-8bbff892-97d2-4011-9961-703e38972569.c000.snappy.parquet\")\n\n\n\n\n\n#|eval: false\nroad_data &lt;- st_read(dsn = \"data/malaysia-singapore-brunei-latest-free.shp\", \n                     layer = \"gis_osm_roads_free_1\")\n\nReading layer `gis_osm_roads_free_1' from data source \n  `C:\\Users\\Kachel Lee\\ka33rina\\IS415GAA\\Take-home_Ex\\Take-home_Ex1\\data\\malaysia-singapore-brunei-latest-free.shp' \n  using driver `ESRI Shapefile'\nSimple feature collection with 1766969 features and 10 fields\nGeometry type: LINESTRING\nDimension:     XY\nBounding box:  xmin: 99.66041 ymin: 0.8021131 xmax: 119.2601 ymax: 7.514393\nGeodetic CRS:  WGS 84"
   }
 ]
