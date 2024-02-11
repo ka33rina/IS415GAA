@@ -83,3 +83,22 @@ st_crs(mpsz3414)
 #|eval: false
 #plot(st_geometry(mpsz3414))
 ```
+
+## 2. Reading Data
+
+### 2.1 Reading grab origin data
+
+```{r}
+sf_grab_origin_data <- read_rds("data/rds/sf_grab_origin_data.rds")
+```
+
+```{r}
+#summary(sf_grab_origin_data)
+
+```
+
+```{r}
+tmap_mode('view')
+tm_shape(sf_grab_origin_data)+
+  tm_dots()
+```
