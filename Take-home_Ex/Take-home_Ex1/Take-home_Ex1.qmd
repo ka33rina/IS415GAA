@@ -5,7 +5,7 @@ execute:
 date: "`r Sys.Date()`"
 ---
 
-# Getting Started 
+# Getting Started
 
 ```{r}
 pacman::p_load(arrow, lubridate, tidyverse,maptools, sf, spNetwork, raster, spatstat, tmap)
