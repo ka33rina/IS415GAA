@@ -1,8 +1,13 @@
 ---
 title: "Data_Prep_Take-home_Ex01"
-execute:  
+format: html
+execute:
+  eval: true
+  echo: true
+  freeze: true
   warning: false
-date: "`r Sys.Date()`"
+  message: false
+editor: visual
 ---
 
 # Getting Started

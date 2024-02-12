@@ -1,0 +1,134 @@
+---
+title: "Take-home_Ex1"
+date: "`r Sys.Date()`" 
+format: html
+execute:
+  eval: true
+  echo: true
+  freeze: true
+  warning: false
+  message: false
+editor: visual
+---
+
+# Getting Started
+
+```{r}
+pacman::p_load(arrow, lubridate, tidyverse,
+               maptools, sf, spNetwork, 
+               raster, spatstat, tmap)
+```
+
+## 1. Loading of Data
+
+### 1.3 Loading of Master Plan 2019 Subzone Boundary (No Sea) from Data.gov.sg
+
+```{r}
+mpsz <- st_read(dsn = "data/MPSZ-2019", 
+                layer = "MPSZ-2019")
+```
+
+```{r}
+mpsz3414 <- st_transform(mpsz, 3414)
+```
+
+## 2. Extracting Geospatial Data Layer
+
+```{r}
+sf_grab_origin_data <- read_rds("data/rds/sf_grab_origin_data.rds")
+```
+
+```{r}
+summary(sf_grab_origin_data)
+```
+
+```{r}
+tmap_mode('plot')
+tm_shape(sf_grab_origin_data)+
+  tm_dots()
+```
+
+### 2.2 Extracting Road Layer within Singapore excluding outer islands
+
+```{r}
+sf_roads_in_sg <- read_rds("data/rds/sf_roads_in_sg.rds")
+```
+
+### 2.3 Extracting Singapore boundary layer excluding outer islands
+
+```{r}
+outer_islands <- mpsz3414[grep("island", mpsz3414$PLN_AREA_N, ignore.case = TRUE), ]
+print(outer_islands)
+```
+
+```{r}
+merged_map <- st_union(mpsz3414, outer_islands)
+```
+
+```{r}
+map_without_outer_islands <- st_difference(mpsz3414, st_union(outer_islands))
+```
+
+```{r}
+sf_map_without_outer_islands <- st_cast(map_without_outer_islands, "POLYGON")
+```
+
+## 3. Traditional Kernel Density Estimation layers
+
+To reduce the data size and focus on one specific area, I will be doing the analysis on Punggol town.
+
+### 3.1 Creating Sg_boundary owin object
+
+```{r}
+sg_sf <- sf_map_without_outer_islands %>% 
+  st_union()
+```
+
+```{r}
+#|eval: false
+plot(sg_sf)
+```
+
+```{r}
+grab_origin_ppp <- as.ppp(sf_grab_origin_data)
+```
+
+```{r}
+summary(grab_origin_ppp)
+```
+
+```{r}
+#|eval: false
+plot(grab_origin_ppp)
+```
+
+```{r}
+summary(grab_origin_ppp)
+```
+
+```{r}
+sg_owin <- as.owin(sg_sf) 
+summary(sg_owin)
+```
+
+```{r}
+sg_grab_origin_ppp = grab_origin_ppp[sg_owin]
+summary(sg_grab_origin_ppp)
+```
+
+```{r}
+#| eval: false
+plot(sg_grab_origin_ppp)
+```
+
+```{r}
+kde_grab_bw <- density(sg_grab_origin_ppp,
+                              sigma=bw.diggle,
+                              edge=TRUE,
+                            kernel="gaussian") 
+
+```
+
+```{r}
+plot(kde_grab_bw)
+```
