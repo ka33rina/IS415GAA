@@ -85,7 +85,7 @@ sg_sf <- sf_map_without_outer_islands %>%
 ```
 
 ```{r}
-#|eval: false
+#| eval: false
 plot(sg_sf)
 ```
 
@@ -98,7 +98,7 @@ summary(grab_origin_ppp)
 ```
 
 ```{r}
-#|eval: false
+#| eval: false
 plot(grab_origin_ppp)
 ```
 
@@ -132,3 +132,148 @@ kde_grab_bw <- density(sg_grab_origin_ppp,
 ```{r}
 plot(kde_grab_bw)
 ```
+
+## 4. Network Kernel Density Estimation (NKDE) or Temporal Network Kernel Density Estimation (TNKDE)
+
+```{r}
+pg <- mpsz3414 %>%
+  filter(PLN_AREA_N == "PUNGGOL")
+
+```
+
+```{r}
+plot(st_geometry(pg, main = "Punggol"))
+```
+
+```{r}
+#| eval: False
+roads_in_punggol <- st_intersection(sf_roads_in_sg, pg)
+```
+
+```{r}
+#| eval: False
+write_rds(roads_in_punggol, "data/rds/roads_in_punggol.rds")
+```
+
+```{r}
+roads_in_punggol <- read_rds("data/rds/roads_in_punggol.rds")
+```
+
+```{r}
+plot(st_geometry(roads_in_punggol))
+```
+
+```{r}
+#| eval: False
+grab_in_punggol <- st_intersection(sf_grab_origin_data, pg)
+
+```
+
+```{r}
+#| eval: False
+write_rds(grab_in_punggol, "data/rds/grab_in_punggol.rds")
+
+```
+
+```{r}
+grab_in_punggol <- read_rds("data/rds/grab_in_punggol.rds")
+```
+
+```{r}
+plot(st_geometry(grab_in_punggol))
+```
+
+```{r}
+#grab_road_in_pg <- st_intersection(sf_roads_in_sg,grab_in_punggol)
+```
+
+```{r}
+#grab_road_in_pg <- st_intersection(grab_in_punggol, roads_in_punggol)
+```
+
+```{r}
+#plot(grab_road_in_pg)
+```
+
+```{r}
+#grab_road_in_pg <- grab_road_in_pg[st_is_empty(grab_road_in_pg$geometry) == FALSE, ]
+
+```
+
+```{r}
+tmap_mode('plot')
+tm_shape(roads_in_punggol, geometry_type = "lines") + 
+  tm_lines()
+
+  
+```
+
+```{r}
+tmap_mode('plot')
+
+# Plot roads
+tm_shape(roads_in_punggol, geometry_type = "lines") + 
+  tm_lines(lwd = 1, col = "blue") +
+  
+  # Plot Punggol area boundary
+  tm_shape(pg) +
+  tm_borders() +
+  
+  # Plot Grab origin data
+  tm_shape(grab_in_punggol) +
+  tm_dots()
+```
+
+
+```{r}
+roads_lines <- roads_in_punggol[st_geometry_type(roads_in_punggol) == "LINESTRING", ]
+
+# Apply lixelize_lines with mindist
+lixels <- lixelize_lines(roads_lines,5000, mindist = 2500)
+```
+
+```{r}
+samples <- lines_center(lixels)
+```
+
+```{r}
+densities <- nkde(roads_lines, 
+                  events = grab_in_punggol,
+                  w = rep(1,nrow(grab_in_punggol)),
+                  samples = samples,
+                  kernel_name = "quartic",
+                  bw = 300, 
+                  div= "bw", 
+                  method = "simple", 
+                  digits = 1, 
+                  tol = 1,
+                  grid_shape = c(1,1), 
+                  max_depth = 8,
+                  agg = 5, #we aggregate events within a 5m radius (faster calculation)
+                  sparse = TRUE,
+                  verbose = FALSE)
+```
+
+```{r}
+samples$density <- densities
+lixels$density <- densities
+```
+
+```{r}
+# rescaling to help the mapping
+samples$density <- samples$density*1000
+lixels$density <- lixels$density*1000
+```
+
+```{r}
+tmap_mode('view')
+tm_shape(lixels)+
+  tm_lines(col="density")+
+tm_shape(grab_in_punggol)+
+  tm_dots()
+```
+
+
+## 5. Describe the spatial patterns revealed by the kernel density maps
+
+From the density map above, it shows that the crossroads has the highest density among the all other roads. Those are popular pick-up points. This also shows a behaviour of passengers are more likely to take their ride in main streets. This implies that more grab cars will pass by the main streets as well.

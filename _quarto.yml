@@ -42,9 +42,9 @@ website:
        
       - text: "Take-home Exercise"
         menu: 
-          - text: "Data Preparation for Take-home_Ex01"
-            href: "Take-home_Ex/Take-home_Ex1/Data_Prep_Take-home_Ex1.html"
-          - text: "Take-home Exercise 1"
+          - text: "Take-home_Ex01 Data Preparation"
+            href: "Take-home_Ex/Take-home_Ex1/Take-home_Ex1-DataPrep.html"
+          - text: "Take-home Exercise 1: KDE"
             href: "Take-home_Ex/Take-home_Ex1/Take-home_Ex1-KDE.html"
           - text: "Data Preparation for Take-home_Ex02"
             href: "Take-home_Ex/Take-home_Ex2/Data_Prep_Take-home_Ex2.html"

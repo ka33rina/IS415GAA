@@ -22,7 +22,7 @@ pacman::p_load(arrow, lubridate, tidyverse,maptools, sf, spNetwork, raster, spat
 ### 1.1 Loading of grab data frame
 
 ```{r}
-
+#| eval: false
 grab_df <- read_parquet("data/GrabPosisi/part-00000-8bbff892-97d2-4011-9961-703e38972569.c000.snappy.parquet")
 
 ```
@@ -30,7 +30,7 @@ grab_df <- read_parquet("data/GrabPosisi/part-00000-8bbff892-97d2-4011-9961-703e
 ### 1.2 Loading of Road data set from OpenStreetMap
 
 ```{r}
-
+#| eval: false
 road_data <- st_read(dsn = "data/malaysia-singapore-brunei-latest-free.shp", 
                      layer = "gis_osm_roads_free_1")
 ```
@@ -45,13 +45,13 @@ st_crs(road_data)
 **This is a wrong EPSG code because the correct EPSG code for svy21 should be 3414. Since it indicates that EPSG is 4326, we need to change the EPSG code into 3414.**
 
 ```{r}
-
+#| eval: false
 road_data_3414 <- st_transform(road_data, 3414)
 ```
 
 ```{r}
 #| eval: false
-#plot(road_data_3414)
+plot(road_data_3414)
 ```
 
 ### 1.3 Loading of Master Plan 2019 Subzone Boundary (No Sea) from Data.gov.sg
@@ -94,18 +94,17 @@ mpsz3414 <- read_rds("data/rds/mpsz3414.rds")
 plot(st_geometry(mpsz3414))
 ```
 
-
 ## 2. Extracting Geospatial Data Layer
 
 ### 2.1 Extracting Grab taxi locations by origin
 
 ```{r}
-#|eval: false
+#| eval: false
 grab_df$pingtimstamp <- as_datetime(grab_df$pingtimestamp)
 ```
 
 ```{r}
-#|eval: false
+#| eval: false
 grab_origin <- grab_df %>% 
   group_by(trj_id) %>%
   arrange(pingtimestamp) %>%
@@ -120,7 +119,7 @@ grab_origin <- grab_df %>%
 ### 2.1.2 Transform grab_origin_df into spatial data
 
 ```{r}
-#|eval: false
+#| eval: false
 sf_grab_origin_data <- st_as_sf(grab_origin, 
                                 coords = c("rawlng","rawlat"), 
                                 crs = 4326) %>% 
@@ -128,7 +127,7 @@ sf_grab_origin_data <- st_as_sf(grab_origin,
 ```
 
 ```{r}
-#|eval: false
+#| eval: false
 write_rds(sf_grab_origin_data, "data/rds/sf_grab_origin_data.rds")
 ```
 
@@ -141,7 +140,7 @@ summary(sf_grab_origin_data)
 ```
 
 ```{r}
-tmap_mode('view')
+tmap_mode('plot')
 tm_shape(sf_grab_origin_data)+
   tm_dots()
 ```
@@ -149,11 +148,12 @@ tm_shape(sf_grab_origin_data)+
 ### 2.2 Extracting Singapore boundary layer excluding outer islands
 
 ```{r}
-outer_islands <- mpsz3414[grep("island", mpsz3414$PLN_AREA_N, ignore.case = TRUE), ] #print(outer_islands) 
+outer_islands <- mpsz3414[grep("island", mpsz3414$PLN_AREA_N, ignore.case = TRUE), ] 
+#print(outer_islands) 
 ```
 
 ```{r}
-#|eval: false 
+#| eval: false 
 #plot(outer_islands)
 ```
 
@@ -166,7 +166,7 @@ map_without_outer_islands <- st_difference(mpsz3414, st_union(outer_islands))
 ```
 
 ```{r}
-#|eval: false 
+#| eval: false 
 #plot(map_without_outer_islands)
 ```
 
@@ -177,17 +177,17 @@ sf_map_without_outer_islands <- st_cast(map_without_outer_islands, "POLYGON")
 ### 2.3 Extracting Road Layer within Singapore excluding outer islands
 
 ```{r}
-#|eval: false
+#| eval: false
 roads_in_singapore <- st_intersection(road_data_3414, map_without_outer_islands)
 ```
 
 ```{r}
-#|eval: false
+#| eval: false
 sf_roads_in_sg <- st_cast(roads_in_singapore, "LINESTRING")
 ```
 
 ```{r}
-#|eval: false
+#| eval: false
 write_rds(sf_roads_in_sg, "data/rds/sf_roads_in_sg.rds")
 ```
 
@@ -196,7 +196,7 @@ sf_roads_in_sg <- read_rds("data/rds/sf_roads_in_sg.rds")
 ```
 
 ```{r}
-#|eval: false
+#| eval: false
 #plot(map_without_outer_islands$geometry, main = "Roads in Singapore")
 #plot(roads_in_singapore$geometry, add = TRUE, col = "red")
 ```
@@ -208,12 +208,13 @@ To reduce the data size and focus on one specific area, I will be doing the anal
 ### 3.1 Creating Sg_boundary owin object
 
 ```{r}
-sg_sf <- sf_map_without_outer_islands %>%    st_union()
+sg_sf <- sf_map_without_outer_islands %>%    
+  st_union()
 ```
 
 ```{r}
-#|eval: false 
-#plot(sg_sf)
+#| eval: false 
+plot(sg_sf)
 ```
 
 ```{r}
@@ -225,8 +226,8 @@ summary(grab_origin_ppp)
 ```
 
 ```{r}
-#|eval: false 
-#plot(grab_origin_ppp)
+#| eval: false 
+plot(grab_origin_ppp)
 ```
 
 ```{r}
@@ -244,6 +245,6 @@ summary(sg_grab_origin_ppp)
 ```
 
 ```{r}
-#|eval: false 
-#plot(sg_grab_origin_ppp)
+#| eval: false 
+plot(sg_grab_origin_ppp)
 ```
