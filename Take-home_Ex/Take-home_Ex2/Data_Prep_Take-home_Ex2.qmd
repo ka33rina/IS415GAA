@@ -1,13 +1,69 @@
 ---
-title: "Data_Prep_Take-home_Ex2"
+title: "Take-home_Ex2: Data Preparation"
+format: html
 execute:  
+  message: false 
   warning: false
 date: "`r Sys.Date()`" 
 ---
 
-# Getting Started
+This page showcases the steps of doing data preparation.
+
+## Getting Started
 
 ```{r}
 pacman::p_load(arrow, lubridate, tidyverse,maptools, sf, spNetwork, raster, spatstat, tmap)
 
+```
+
+## 1. Loading Aspatial Data of Dengue Fever
+
+```{r}
+#| eval: false
+dengue_daily <- read.csv("data/aspatial/Dengue_Daily.csv")
+```
+
+### Filtering the data into Week 31 - 50 of 2023 and selecting the necessary data
+
+```{r}
+#| eval: false
+filtered_data <- dengue_daily[dengue_daily$發病日 >= as.Date("2023-08-01") & dengue_daily$發病日 <= as.Date("2023-12-17"), ]
+```
+
+```{r}
+#| eval: false
+write_rds(filtered_data, "data/rds/filtered_data.rds")
+```
+
+```{r}
+
+```
+
+## 2. Loading Geo-spatial Data: TaiNan Village Data
+
+```{r}
+#| eval: false
+tainan_village <- st_read(dsn = "data/geospatial", 
+                          layer = "TAINAN_VILLAGE")
+```
+
+```{r}
+#| eval: false
+filtered_tainan_village <- tainan_village %>%
+  filter(TOWNID %in% c("D01", "D02", "D04", "D06", "D07", "D08", "D32", "D39")) %>% st_transform()
+ 
+```
+
+```{r}
+#| eval: false
+write_rds(filtered_tainan_village, "data/rds/filtered_tainan_village.rds")
+```
+
+```{r}
+#| eval: false
+#plot(st_geometry(filtered_tainan_village))
+```
+
+```{r}
+#tainan_dengue <- left_join(filtered_tainan_village, filtered_data, by = "VILLCODE")
 ```

@@ -224,7 +224,6 @@ tm_shape(roads_in_punggol, geometry_type = "lines") +
   tm_dots()
 ```
 
-
 ```{r}
 roads_lines <- roads_in_punggol[st_geometry_type(roads_in_punggol) == "LINESTRING", ]
 
@@ -272,7 +271,6 @@ tm_shape(lixels)+
 tm_shape(grab_in_punggol)+
   tm_dots()
 ```
-
 
 ## 5. Describe the spatial patterns revealed by the kernel density maps
 

@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2024-02-11">
+<meta name="dcterms.date" content="2024-02-26">
 
 <title>IS415-GAA - In-Class_Ex05</title>
 <style>
@@ -188,12 +188,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     </a>
     <ul class="dropdown-menu" aria-labelledby="nav-menu-take-home-exercise">    
         <li>
-    <a class="dropdown-item" href="../../Take-home_Ex/Take-home_Ex1/Data_Prep_Take-home_Ex1.html" rel="" target="">
- <span class="dropdown-text">Data Preparation for Take-home_Ex01</span></a>
+    <a class="dropdown-item" href="../../Take-home_Ex/Take-home_Ex1/Take-home_Ex1-DataPrep.html" rel="" target="">
+ <span class="dropdown-text">Take-home_Ex01 Data Preparation</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="../../Take-home_Ex/Take-home_Ex1/Take-home_Ex1.html" rel="" target="">
- <span class="dropdown-text">Take-home Exercise 1</span></a>
+    <a class="dropdown-item" href="../../Take-home_Ex/Take-home_Ex1/Take-home_Ex1-KDE.html" rel="" target="">
+ <span class="dropdown-text">Take-home Exercise 1: KDE</span></a>
   </li>  
         <li>
     <a class="dropdown-item" href="../../Take-home_Ex/Take-home_Ex2/Data_Prep_Take-home_Ex2.html" rel="" target="">
@@ -256,7 +256,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">February 11, 2024</p>
+      <p class="date">February 26, 2024</p>
     </div>
   </div>
   
@@ -298,8 +298,8 @@ Geodetic CRS:  WGS 84</code></pre>
 </div>
 <p>** this is to remain the geometry data in a sf format **</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>hunan_GDPPC <span class="ot">&lt;-</span> <span class="fu">left_join</span>(hunan, hunan2012) <span class="sc">%&gt;%</span> </span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">select</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>,<span class="dv">7</span>,<span class="dv">15</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>hunan_GDPPC <span class="ot">&lt;-</span> <span class="fu">left_join</span>(hunan, hunan2012) <span class="sc">%&gt;%</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>               dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>, <span class="dv">7</span>, <span class="dv">15</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="plotting-a-choropleth-map" class="level2">
@@ -328,7 +328,7 @@ Geodetic CRS:  WGS 84</code></pre>
 </section>
 <section id="deriving-continguity-weights-queens-method" class="level2">
 <h2 class="anchored" data-anchor-id="deriving-continguity-weights-queens-method">Deriving continguity weights: Queen’s method</h2>
-<p>save it into a column and table nam: nb and wt</p>
+<p>save it into a column and table name: nb and wt</p>
 <p>combine the 2 codes into 1</p>
 <p>In the code chuck below, queen method is ised to derive the contiguity weights:</p>
 <div class="cell">

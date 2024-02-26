@@ -1,0 +1,48 @@
+---
+title: "Take-home_Ex2"
+format: html
+execute:  
+  message: false 
+  warning: false
+date: "`r Sys.Date()`" 
+---
+
+# Background of Dengue Fever in Taiwan in 2015
+
+```{r}
+pacman::p_load(arrow, lubridate, tidyverse,maptools, sf, spNetwork, raster, spatstat, tmap)
+```
+
+## 1. Importing Data
+
+## 1.1 Importing Geospatial Data
+
+```{r}
+filtered_tainan_village <- read_rds("data/rds/filtered_tainan_village.rds")
+```
+
+```{r}
+#print(filtered_tainan_village)
+```
+
+```{r}
+tmap_mode("plot")
+tm_shape(filtered_tainan_village) +
+  tm_borders()
+```
+
+```{r}
+tmap_mode("view")
+tm_shape(filtered_tainan_village) +
+  tm_fill("VILLNAME", 
+          alpha = 0.2) +
+  tm_borders()
+```
+
+```{r}
+
+```
+
+```{r}
+
+```

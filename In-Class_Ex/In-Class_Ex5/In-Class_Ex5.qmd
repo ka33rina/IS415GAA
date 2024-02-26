@@ -31,8 +31,8 @@ hunan2012 <- read_csv("data/aspatial/Hunan_2012.csv")
 \*\* this is to remain the geometry data in a sf format \*\*
 
 ```{r}
-hunan_GDPPC <- left_join(hunan, hunan2012) %>% 
-    select(1:4,7,15)
+hunan_GDPPC <- left_join(hunan, hunan2012) %>%
+               dplyr::select(1:4, 7, 15)
 
 ```
 
@@ -59,7 +59,7 @@ tm_shape(hunan_GDPPC)+
 
 ## Deriving continguity weights: Queen's method
 
-save it into a column and table nam: nb and wt
+save it into a column and table name: nb and wt
 
 combine the 2 codes into 1
 

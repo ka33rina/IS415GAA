@@ -6,9 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2024-02-11">
+<meta name="dcterms.date" content="2024-02-26">
 
-<title>IS415-GAA - Data_Prep_Take-home_Ex2</title>
+<title>IS415-GAA - Take-home_Ex2: Data Preparation</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -188,12 +188,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     </a>
     <ul class="dropdown-menu" aria-labelledby="nav-menu-take-home-exercise">    
         <li>
-    <a class="dropdown-item" href="../../Take-home_Ex/Take-home_Ex1/Data_Prep_Take-home_Ex1.html" rel="" target="">
- <span class="dropdown-text">Data Preparation for Take-home_Ex01</span></a>
+    <a class="dropdown-item" href="../../Take-home_Ex/Take-home_Ex1/Take-home_Ex1-DataPrep.html" rel="" target="">
+ <span class="dropdown-text">Take-home_Ex01 Data Preparation</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="../../Take-home_Ex/Take-home_Ex1/Take-home_Ex1.html" rel="" target="">
- <span class="dropdown-text">Take-home Exercise 1</span></a>
+    <a class="dropdown-item" href="../../Take-home_Ex/Take-home_Ex1/Take-home_Ex1-KDE.html" rel="" target="">
+ <span class="dropdown-text">Take-home Exercise 1: KDE</span></a>
   </li>  
         <li>
     <a class="dropdown-item" href="../../Take-home_Ex/Take-home_Ex2/Data_Prep_Take-home_Ex2.html" rel="" target="">
@@ -232,6 +232,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    
   <ul>
   <li><a href="#getting-started" id="toc-getting-started" class="nav-link active" data-scroll-target="#getting-started">Getting Started</a></li>
+  <li><a href="#loading-aspatial-data-of-dengue-fever" id="toc-loading-aspatial-data-of-dengue-fever" class="nav-link" data-scroll-target="#loading-aspatial-data-of-dengue-fever">1. Loading Aspatial Data of Dengue Fever</a>
+  <ul class="collapse">
+  <li><a href="#filtering-the-data-into-week-31---50-of-2023-and-selecting-the-necessary-data" id="toc-filtering-the-data-into-week-31---50-of-2023-and-selecting-the-necessary-data" class="nav-link" data-scroll-target="#filtering-the-data-into-week-31---50-of-2023-and-selecting-the-necessary-data">Filtering the data into Week 31 - 50 of 2023 and selecting the necessary data</a></li>
+  </ul></li>
+  <li><a href="#loading-geo-spatial-data-tainan-village-data" id="toc-loading-geo-spatial-data-tainan-village-data" class="nav-link" data-scroll-target="#loading-geo-spatial-data-tainan-village-data">2. Loading Geo-spatial Data: TaiNan Village Data</a></li>
   </ul>
 </nav>
     </div>
@@ -240,7 +245,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Data_Prep_Take-home_Ex2</h1>
+<h1 class="title">Take-home_Ex2: Data Preparation</h1>
 </div>
 
 
@@ -251,7 +256,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">February 11, 2024</p>
+      <p class="date">February 26, 2024</p>
     </div>
   </div>
   
@@ -261,10 +266,46 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </header>
 
-<section id="getting-started" class="level1">
-<h1>Getting Started</h1>
+<p>This page showcases the steps of doing data preparation.</p>
+<section id="getting-started" class="level2">
+<h2 class="anchored" data-anchor-id="getting-started">Getting Started</h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(arrow, lubridate, tidyverse,maptools, sf, spNetwork, raster, spatstat, tmap)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="loading-aspatial-data-of-dengue-fever" class="level2">
+<h2 class="anchored" data-anchor-id="loading-aspatial-data-of-dengue-fever">1. Loading Aspatial Data of Dengue Fever</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>dengue_daily <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/aspatial/Dengue_Daily.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="filtering-the-data-into-week-31---50-of-2023-and-selecting-the-necessary-data" class="level3">
+<h3 class="anchored" data-anchor-id="filtering-the-data-into-week-31---50-of-2023-and-selecting-the-necessary-data">Filtering the data into Week 31 - 50 of 2023 and selecting the necessary data</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>filtered_data <span class="ot">&lt;-</span> dengue_daily[dengue_daily<span class="sc">$</span>發病日 <span class="sc">&gt;=</span> <span class="fu">as.Date</span>(<span class="st">"2023-08-01"</span>) <span class="sc">&amp;</span> dengue_daily<span class="sc">$</span>發病日 <span class="sc">&lt;=</span> <span class="fu">as.Date</span>(<span class="st">"2023-12-17"</span>), ]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_rds</span>(filtered_data, <span class="st">"data/rds/filtered_data.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="loading-geo-spatial-data-tainan-village-data" class="level2">
+<h2 class="anchored" data-anchor-id="loading-geo-spatial-data-tainan-village-data">2. Loading Geo-spatial Data: TaiNan Village Data</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>tainan_village <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"data/geospatial"</span>, </span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>                          <span class="at">layer =</span> <span class="st">"TAINAN_VILLAGE"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>filtered_tainan_village <span class="ot">&lt;-</span> tainan_village <span class="sc">%&gt;%</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(TOWNID <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"D01"</span>, <span class="st">"D02"</span>, <span class="st">"D04"</span>, <span class="st">"D06"</span>, <span class="st">"D07"</span>, <span class="st">"D08"</span>, <span class="st">"D32"</span>, <span class="st">"D39"</span>)) <span class="sc">%&gt;%</span> <span class="fu">st_transform</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_rds</span>(filtered_tainan_village, <span class="st">"data/rds/filtered_tainan_village.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">#plot(st_geometry(filtered_tainan_village))</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">#tainan_dengue &lt;- left_join(filtered_tainan_village, filtered_data, by = "VILLCODE")</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 
 
