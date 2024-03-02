@@ -1,0 +1,102 @@
+---
+title: "demo"
+execute:  
+  warning: false
+date: "`r Sys.Date()`" 
+---
+
+## 3. Global Spatial Autocorrelation Analysis
+
+### **3.1 Row-standardised weights matrix**
+
+#### 3.1.1 **Computing Contiguity Spatial Weights**
+
+```{r} wm_q_v <- poly2nb(v_data,                  queen=TRUE) summary(wm_q_v)}
+```
+
+It shows that there are 258 villages in the selected Tainan Area. The most connected area has 14 links. All of the villages at least has 2 neighbors.
+
+#### 3.1.2 **Row-standardised weights matrix**
+
+```{r} rswm_q_v <- nb2listw(wm_q_v,                     style="W",                     zero.policy = TRUE) rswm_q_v}
+```
+
+### **3.2 Global Measures of Spatial Autocorrelation: Moran’s I**
+
+#### 3.2.1 **Maron’s I test**
+
+```{r} moran.test(v_data$total_cases,             listw=rswm_q_v,             zero.policy = TRUE,             na.action=na.omit)}
+```
+
+As the p-value is very low, which is statistically significant. We can reject the null hypothesis that there is significant spatial autocorrelation in the data.
+
+#### 3.2.2 **Computing Monte Carlo Moran’s I**
+
+```{r} set.seed(1234) bperm_v = moran.mc(v_data$total_cases,                  listw=rswm_q_v,                  nsim=999,                  zero.policy = TRUE,                  na.action=na.omit) bperm_v}
+```
+
+As the p-value is very low, which is statistically significant. We can reject the null hypothesis that there is significant spatial autocorrelation in the data.
+
+#### 3.2.3 **Visualising Monte Carlo Moran’s I**
+
+```{r} mean(bperm_v$res[1:999])}
+```
+
+```{r} var(bperm_v$res[1:999])}
+```
+
+```{r} summary(bperm_v$res[1:999])}
+```
+
+```{r} hist(bperm_v$res,       freq=TRUE,       breaks=20,       xlab="Simulated Moran's I") abline(v=0,         col="red")}
+```
+
+### **3.3 Global Measures of Spatial Autocorrelation: Geary’s C**
+
+#### 3.3.1 **Geary’s C test**
+
+```{r} geary.test(v_data$total_cases, listw=rswm_q_v)}
+```
+
+#### 3.3.2 **Computing Monte Carlo Geary’s C**
+
+```{r} set.seed(1234) bperm_v_geary =geary.mc(v_data$total_cases,                 listw=rswm_q_v,                 nsim=999) bperm_v_geary}
+```
+
+As the p-value is very low, which is statistically significant. We can reject the null hypothesis that there is significant spatial autocorrelation in the data.
+
+#### **3.3.3 Visualising the Monte Carlo Geary’s C**
+
+```{r} mean(bperm_v_geary$res[1:999])}
+```
+
+```{r} var(bperm_v_geary$res[1:999])}
+```
+
+```{r} summary(bperm_v_geary$res[1:999])}
+```
+
+```{r} hist(bperm_v_geary$res, freq=TRUE, breaks=20, xlab="Simulated Geary c") abline(v=1, col="red")}
+```
+
+#### 
+
+## **Spatial Correlogram**
+
+### **Compute Moran’s I correlogram**
+
+```{r} MI_corr <- sp.correlogram(wm_q_v,                            v_data$total_cases,                            order=6,                            method="I",                            style="W") plot(MI_corr)}
+```
+
+```{r} print(MI_corr)}
+```
+
+### **Compute Geary’s C correlogram and plot**
+
+```{r} GC_corr <- sp.correlogram(wm_q_v,                            v_data$total_cases,                            order=6,                            method="C",                            style="W") plot(GC_corr)}
+```
+
+```{r} print(GC_corr)}
+```
+
+## 

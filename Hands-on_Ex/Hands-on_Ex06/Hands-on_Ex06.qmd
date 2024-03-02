@@ -31,7 +31,7 @@ hunan2012 <- read_csv("data/aspatial/Hunan_2012.csv")
 
 ```{r}
 hunan <- left_join(hunan,hunan2012) %>%
-  select(1:4, 7, 15)
+ dplyr::select(1:4, 7, 15)
 
 ```
 

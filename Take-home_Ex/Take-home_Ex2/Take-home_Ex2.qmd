@@ -10,39 +10,607 @@ date: "`r Sys.Date()`"
 # Background of Dengue Fever in Taiwan in 2015
 
 ```{r}
-pacman::p_load(arrow, lubridate, tidyverse,maptools, sf, spNetwork, raster, spatstat, tmap)
+pacman::p_load(arrow, lubridate, tidyverse,maptools, sf, spNetwork, raster, spatstat, tmap, sfdep, spdep, dplyr)
 ```
 
 ## 1. Importing Data
 
-## 1.1 Importing Geospatial Data
-
 ```{r}
-filtered_tainan_village <- read_rds("data/rds/filtered_tainan_village.rds")
+#reduced-size sf data
+dengue_data <- read_rds("data/rds/dengue_data.rds")
 ```
 
 ```{r}
-#print(filtered_tainan_village)
+#joint data
+tainan_dengue <- read_rds("data/rds/tainan_dengue.rds")
+```
+
+```{r}
+#geospatial data
+tainan_v <- read_rds("data/rds/filtered_tainan_village.rds")
+```
+
+## 2. Exploratory Data Analysis (EDA)
+
+To have a better idea of how is the distributions of dengue cases in Tainan, we can do it by grouping the data into different groups.
+
+```{r}
+head(dengue_data)
+```
+
+```{r}
+head(tainan_dengue)
 ```
 
 ```{r}
 tmap_mode("plot")
-tm_shape(filtered_tainan_village) +
-  tm_borders()
+town_map <- tm_shape(tainan_dengue) +
+  tm_polygons(col = "TOWNID") +
+  tm_layout(legend.show = TRUE, main.title = "Overview of Dengue Study Area", main.title.size = 1) +
+  tm_scale_bar()
 ```
 
 ```{r}
+tmap_mode("plot")
+v_map <- tm_shape(tainan_dengue) +
+  tm_polygons(col = "VILLENG") +
+  tm_layout(legend.show = TRUE, main.title = "Overview of Dengue Study Area", main.title.size = 1) +
+  tm_scale_bar()
+```
+
+```{r}
+tmap_arrange(town_map,v_map, ncol=2)
+```
+
+```{r}
+ggplot(tainan_dengue, aes(x = TOWNID)) +
+  geom_bar(fill = "steelblue", color = "black", bins = 20) +
+  geom_text(stat = "count", aes(label = ..count..), vjust = -0.5)
+```
+
+### 2.1 Group by TownID
+
+Since there is 1 NA values in the column: CONFIRMED_CASE_COUNT coloumn for D06, we need to mutate some of the rows
+
+```{r}
+# Check for NA values in CONFIRMED_CASE_COUNT column for D06
+sum(is.na(tainan_dengue$CONFIRMED_CASE_COUNT[tainan_dengue$TOWNID == "D06"]))
+
+```
+
+```{r}
+tainan_dengue_imputed <- tainan_dengue %>%
+  mutate(CONFIRMED_CASE_COUNT = ifelse(is.na(CONFIRMED_CASE_COUNT), 0, CONFIRMED_CASE_COUNT))
+```
+
+```{r}
+write_rds(tainan_dengue_imputed, "data/rds/tainan_dengue_2.rds")
+```
+
+```{r}
+tainan_dengue_2 <- read_rds("data/rds/tainan_dengue_2.rds")
+```
+
+```{r}
+town_data <- tainan_dengue_2 %>%
+  group_by(TOWNID) %>%
+  summarise(total_cases = sum(CONFIRMED_CASE_COUNT))
+
+# Now you can print the summarized data again
+print(town_data)
+```
+
+```{r}
+town_data_map <- tm_shape(town_data) +
+  tm_borders() +
+  tm_fill("total_cases") +
+   tm_layout(main.title = "Total Confirmed Cases by Town",
+            main.title.position = "center",
+            main.title.size = 1.2,
+            legend.height = 0.45,
+            legend.width = 0.35,
+            frame = TRUE)+
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", size = 2) +
+  tm_scale_bar() +
+  tm_grid(alpha = 0.2)
+```
+
+### 2.2 Group by Village
+
+```{r}
+v_data <- tainan_dengue_2 %>%
+  group_by(VILLCODE) %>%
+  summarise(total_cases = sum(CONFIRMED_CASE_COUNT))
+
+```
+
+```{r}
+v_data_map <- tm_shape(v_data) +
+  tm_borders() +
+  tm_fill("total_cases") +
+   tm_layout(main.title = "Total Confirmed Cases by Village",
+            main.title.position = "center",
+            main.title.size = 1.2,
+            legend.height = 0.45,
+            legend.width = 0.35,
+            frame = TRUE)+
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", size = 2) +
+  tm_scale_bar() +
+  tm_grid(alpha = 0.2)
+```
+
+```{r}
+tmap_arrange(town_data_map, v_data_map, nrow = 1)
+```
+
+### 2.4 Group by epic_week
+
+```{r}
+new_vw_dengue <- tainan_dengue %>%
+  group_by(VILLCODE, epi_week) %>% 
+  summarise(total_cases = sum(CONFIRMED_CASE_COUNT))  %>%
+  complete(epi_week = 31:50, fill = list(total_cases = 0)) %>%
+  st_drop_geometry()
+```
+
+```{r}
+vw_dengue <- tainan_dengue_2 %>%
+  group_by(VILLCODE, epi_week) %>% 
+  summarise(total_cases = sum(CONFIRMED_CASE_COUNT))  %>%
+  complete(epi_week = 31:50, fill = list(total_cases = 0)) 
+```
+
+```{r}
+print(vw_dengue)
+```
+
+```{r}
+vw_dengue <- na.omit(vw_dengue) %>%  st_drop_geometry()
+```
+
+```{r}
+
+#vw_dengue_2 <- vw_dengue %>%
+  #left_join(tainan_v, by = "VILLCODE")%>% 
+  #dplyr:: select(1:3,14)%>% 
+  #drop_na()
+```
+
+```{r}
+vw_dengue_3 <- vw_dengue %>%
+  dplyr:: select(-geometry)
+```
+
+```{r}
+vw_dengue_3 <- as_tibble(vw_dengue_3)
+```
+
+```{r}
+#colSums(is.na(vw_dengue_2))
+
+```
+
+```{r}
+#class(tainan_dengue_2$geometry)
+```
+
+## 3. Global Measure of Spatial Autocorrelation
+
+#### 3.1 **Deriving contiguity weights: Queen’s method**
+
+```{r}
+wm_q_v <- v_data %>%
+  mutate(nb = st_contiguity(geometry),
+         wt = st_weights(nb,
+                         style = "W"),
+         .before = 1) 
+```
+
+```{r}
+wm_q_v
+```
+
+#### 3.2 **Computing Global Moran’ I**
+
+```{r}
+moranI_v <- global_moran(wm_q_v$total_cases,
+                       wm_q_v$nb,
+                       wm_q_v$wt)
+glimpse(moranI_v)
+```
+
+#### 3.3 **Performing Global Moran’sI test**
+
+```{r}
+global_moran_test(wm_q_v$total_cases,
+                       wm_q_v$nb,
+                       wm_q_v$wt)
+
+```
+
+#### 3.4 **Performing Global Moran’I permutation test**
+
+```{r}
+set.seed(1234)
+```
+
+```{r}
+global_moran_perm(wm_q_v$total_cases,
+                       wm_q_v$nb,
+                       wm_q_v$wt,
+                  nsim = 99)
+```
+
+## 4. Local Measure of Spatial Autocorrelation
+
+Local Moran's I analysis is used to detect localized clusters of high or low values in spatial data, providing insights into spatial heterogeneity and informing targeted interventions or policies. By complementing global measures of spatial autocorrelation, such as Moran's I, it helps validate overall spatial patterns and visualizes spatial clusters for enhanced interpretation.
+
+#### 4.1 **Computing Local Moran’s I**
+
+This is useful to detect clusters and outliers.
+
+```{r}
+lisa <- wm_q_v %>% 
+  mutate(local_moran = local_moran(
+    total_cases, nb, wt, nsim = 99),
+         .before = 1) %>%
+  unnest(local_moran)
+```
+
+#### 4.2 **Visualising local Moran’s I**
+
+```{r}
+tmap_mode("plot")
+map1 <- tm_shape(lisa) +
+  tm_fill("ii") + 
+  tm_borders(alpha = 0.5) +
+  tm_view(set.zoom.limits = c(6,8)) +
+  tm_layout(main.title = "local Moran's I of total_cases",
+            main.title.size = 0.8)
+```
+
+#### 4.3 **Visualising p-value of local Moran’s I**
+
+```{r}
+tmap_mode("plot")
+map2 <- tm_shape(lisa) +
+  tm_fill("p_ii_sim") + 
+  tm_borders(alpha = 0.5) +
+   tm_layout(main.title = "p-value of local Moran's I",
+            main.title.size = 0.8)
+
+
+```
+
+#### 4.4 **Visuaising local Moran’s I and p-value**
+
+```{r}
+tmap_mode("plot")
+
+tmap_arrange(map1, map2, ncol = 2)
+```
+
+#### 4.5 **Visualising LISA map**
+
+```{r}
+lisa_sig <- lisa  %>%
+  filter(p_ii < 0.05)
+tmap_mode("plot")
+lisa_map <- tm_shape(lisa) +
+  tm_polygons() +
+  tm_borders(alpha = 0.5) +
+tm_shape(lisa_sig) +
+  tm_fill("mean") + 
+  tm_borders(alpha = 0.4)+ 
+  tm_scale_bar() +
+  tm_layout(legend.show = TRUE, main.title = "Overview of Outliers and Clusters", main.title.size = 1)
+```
+
+To have a better understanding on clusters and outliers better, it is good to show the distribution of town in Tainan region.
+
+```{r}
+tmap_mode("plot")
+tmap_arrange(lisa_map, town_map, ncol = 2)
+```
+
+From the above visualization, the low-low clusters are mainly found in the northern and south-eastern part of the study area. While high-high clusters are mainly found surrounding central area, in D06, D01, D02, D39.
+
+## 5. **Hot Spot and Cold Spot Area Analysis (HCSA)**
+
+### 5.1 **Computing local Gi\* statistics**
+
+```{r}
+wm_idw_v <- v_data %>%
+  mutate(nb = st_contiguity(geometry),
+         wts = st_inverse_distance(nb, geometry,
+                                   scale = 1,
+                                   alpha = 1),
+         .before = 1)
+```
+
+```{r}
+HCSA_v <- wm_idw_v %>% 
+  mutate(local_Gi = local_gstar_perm(
+    total_cases, nb, wt, nsim = 99),
+         .before = 1) %>%
+  unnest(local_Gi)
+HCSA_v
+```
+
+### 5.2 Visualizing Gi\*
+
+```{r}
+tmap_mode("plot")
+map_1 <- tm_shape(HCSA_v) +
+  tm_fill("gi_star") + 
+  tm_borders(alpha = 0.5) +
+  tm_view(set.zoom.limits = c(6,8))+ 
+  tm_layout(legend.show = TRUE, main.title = "Gi* of study area", main.title.size = 1)
+```
+
+### 5.3 Visualizing **p-value of HCSA**
+
+```{r}
+tmap_mode("plot")
+map_2 <- tm_shape(HCSA_v) +
+  tm_fill("p_sim") + 
+  tm_borders(alpha = 0.5)+ 
+  tm_layout(legend.show = TRUE, main.title = "p-value of HSCA", main.title.size = 1)
+```
+
+### 5.4 Visualizing **local HCSA**
+
+```{r}
+tmap_mode("plot")
+tmap_arrange(map_1, map_2, ncol = 2)
+```
+
+### 5.5 **Visualising hot spot and cold spot areas**
+
+```{r}
+HCSA_sig <- HCSA_v  %>%
+  filter(p_sim < 0.05)
+
+tmap_mode("plot")
+HSCA_map <- tm_shape(HCSA_v) +
+  tm_polygons() +
+  tm_borders(alpha = 0.5) +
+tm_shape(HCSA_sig) +
+  tm_fill("gi_star") + 
+  tm_borders(alpha = 0.4)+ 
+  tm_scale_bar()+
+  tm_layout(legend.show = TRUE, main.title = "Hot spot & Cold spot areas", main.title.size = 1)
+```
+
+```{r}
+tmap_mode("plot")
+tmap_arrange(HSCA_map, v_map, ncol = 2)
+```
+
+### 5.6 Creating Spacetime Cube
+
+```{r}
+glimpse(vw_dengue)
+```
+
+```{r}
+tainan_st <- spacetime(vw_dengue_3, tainan_v, 
+                   .loc_col = "VILLCODE",
+                   .time_col = "epi_week",
+                   active = "data")
+
+```
+
+```{r}
+is_spacetime_cube(tainan_st)
+```
+
+### 5.7 **Computing Gi\* - Deriving the spatial weights**
+
+```{r}
+tainan_nb <- tainan_st %>%
+  activate("geometry") %>%
+  mutate(nb = include_self(st_contiguity(geometry)),
+         wt = st_inverse_distance(nb, geometry,
+                                  scale = 1,
+                                  alpha = 1),
+         .before = 1) %>%
+    set_nbs("nb") %>%
+    set_wts("wt")
+```
+
+```{r}
+glimpse(tainan_st)
+```
+
+```{r}
+head(tainan_nb)
+```
+
+### 5.8 **Computing Gi -**
+
+```{r}
+gi_stars <- tainan_nb %>% 
+  group_by(epi_week) %>% 
+  mutate(gi_star = local_gstar_perm(total_cases, nb, wt)) %>% 
+  tidyr::unnest(gi_star)
+```
+
+```{r}
+gistar_map <- left_join(tainan_v, gi_stars,
+                          by = c("VILLCODE" = "VILLCODE"))
+```
+
+```{r}
+head(gistar_map)
+```
+
+```{r}
+tmap_mode("plot")
+tm <- tm_shape(gistar_map) +
+    tm_polygons(col = "p_value", palette = "RdYlBu", style = "cont", legend.show = TRUE) +
+    tm_layout(legend.position = c("right", "bottom"))
+
+tm
+```
+
+From the above map, the darker the red color, indicating them having a lower p-values. We can interpret that those villages are more likely to be significantly associated with higher or lower dengue cases compared to their neighbors. Let's find out more by filtering out those villages with less than 0.05 p-value.
+
+```{r}
+gistar_map_pvalue <- subset(gistar_map, p_value <= 0.05)
+```
+
+```{r}
+unique_villnames <- unique(gistar_map_pvalue$VILLNAME)
+total_unique_villnames <- length(unique_villnames)
+
+# Print the total number of unique VILLNAME values
+print(length(unique(gistar_map_pvalue$VILLNAME)))
+print(unique(gistar_map_pvalue$VILLNAME))
+```
+
+Since there are 145 unique villages with p-value that are lower than 0.05, we would randomly select 3 of them to do a further analysis.
+
+Let's take Sanhe Village 三合里, 大安里 Da'an Village and 安西里 Anxi Village as an example.
+
+### 5.8.1 **Mann-Kendall Test**
+
+```{r}
+sanhe_v <- gistar_map %>% 
+  ungroup() %>% 
+  filter(VILLENG == "Sanhe Vil.") |> 
+  dplyr:: select(VILLENG, epi_week, gi_star)
+
+```
+
+```{r}
+ggplot(data = sanhe_v, 
+       aes(x = epi_week, 
+           y = gi_star)) +
+  geom_line() +
+  theme_light()
+```
+
+```{r}
+daan_v <- gistar_map %>% 
+  ungroup() %>% 
+  filter(VILLENG == "Da'an Vil.") |> 
+  dplyr:: select(VILLENG, epi_week, gi_star)
+```
+
+```{r}
+ggplot(data = daan_v, 
+       aes(x = epi_week, 
+           y = gi_star)) +
+  geom_line() +
+  theme_light()
+```
+
+```{r}
+anxi_v <- gistar_map %>% 
+  ungroup() %>% 
+  filter(VILLENG == "Anxi Vil.") |> 
+  dplyr:: select(VILLENG, epi_week, gi_star)
+```
+
+```{r}
+ggplot(data = anxi_v, 
+       aes(x = epi_week, 
+           y = gi_star)) +
+  geom_line() +
+  theme_light()
+```
+
+```{r}
+combined_data <- rbind(daan_v, sanhe_v, anxi_v)
+
+# Plot using ggplot
+ggplot(combined_data, aes(x = epi_week, y = gi_star, color = VILLENG)) +
+  geom_line() +
+  labs(x = "Epi Week", y = "GI Star", color = "Village Name") +
+  ggtitle("GI Star Trend for Da'an Vil., Sanhe Vil. and AnXi Vil.") +
+  theme_minimal()
+```
+
+```{r}
+daan_v %>%
+  summarise(mk = list(
+    unclass(
+      Kendall::MannKendall(gi_star)))) %>% 
+  tidyr::unnest_wider(mk)
+```
+
+```{r}
+sanhe_v %>%
+  summarise(mk = list(
+    unclass(
+      Kendall::MannKendall(gi_star)))) %>% 
+  tidyr::unnest_wider(mk)
+```
+
+```{r}
+anxi_v %>%
+  summarise(mk = list(
+    unclass(
+      Kendall::MannKendall(gi_star)))) %>% 
+  tidyr::unnest_wider(mk)
+```
+
+```{r}
+ehsa <- gistar_map %>%
+  group_by(VILLENG) %>%
+  summarise(mk = list(
+    unclass(
+      Kendall::MannKendall(gi_star)))) %>%
+  tidyr::unnest_wider(mk)
+```
+
+```{r}
+nrow(ehsa[ehsa$sl < 0.05,])
+```
+
+```{r}
+nrow(ehsa[ehsa$sl >= 0.05,])
+```
+
+```{r}
+ehsa <- emerging_hotspot_analysis(
+  x = tainan_st, 
+  .var = "total_cases",
+  k = 1, 
+  nsim = 99
+)
+```
+
+```{r}
+ggplot(data = ehsa,
+       aes(x = classification)) +
+  geom_bar() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+### 5.9.1 Visualizing EHSA
+
+```{r}
+tn_ehsa <- tainan_v %>%
+  left_join(ehsa,
+            by = join_by(VILLCODE == location))
+```
+
+```{r}
+ehsa_sig <- tn_ehsa  %>%
+  filter(p_value < 0.05)
+
+
+ehsa_map <- tm_shape(tn_ehsa) +
+  tm_polygons(id = "VILLENG") +
+  tm_borders(alpha = 0.5) +
+tm_shape(ehsa_sig) +
+  tm_fill("classification") + 
+  tm_borders(alpha = 0.4)
+
 tmap_mode("view")
-tm_shape(filtered_tainan_village) +
-  tm_fill("VILLNAME", 
-          alpha = 0.2) +
-  tm_borders()
-```
-
-```{r}
-
-```
-
-```{r}
-
+ehsa_map
 ```

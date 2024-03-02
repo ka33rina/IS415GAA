@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2024-02-26">
+<meta name="dcterms.date" content="2024-03-02">
 
 <title>IS415-GAA - Take-home_Ex2: Data Preparation</title>
 <style>
@@ -234,9 +234,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#getting-started" id="toc-getting-started" class="nav-link active" data-scroll-target="#getting-started">Getting Started</a></li>
   <li><a href="#loading-aspatial-data-of-dengue-fever" id="toc-loading-aspatial-data-of-dengue-fever" class="nav-link" data-scroll-target="#loading-aspatial-data-of-dengue-fever">1. Loading Aspatial Data of Dengue Fever</a>
   <ul class="collapse">
-  <li><a href="#filtering-the-data-into-week-31---50-of-2023-and-selecting-the-necessary-data" id="toc-filtering-the-data-into-week-31---50-of-2023-and-selecting-the-necessary-data" class="nav-link" data-scroll-target="#filtering-the-data-into-week-31---50-of-2023-and-selecting-the-necessary-data">Filtering the data into Week 31 - 50 of 2023 and selecting the necessary data</a></li>
+  <li><a href="#filtering-the-data-into-week-31---50-of-2023-and-selecting-the-necessary-data" id="toc-filtering-the-data-into-week-31---50-of-2023-and-selecting-the-necessary-data" class="nav-link" data-scroll-target="#filtering-the-data-into-week-31---50-of-2023-and-selecting-the-necessary-data">1.1 Filtering the data into Week 31 - 50 of 2023 and selecting the necessary data</a></li>
+  <li><a href="#transforming-the-coordination-of-the-dengue-fever-data" id="toc-transforming-the-coordination-of-the-dengue-fever-data" class="nav-link" data-scroll-target="#transforming-the-coordination-of-the-dengue-fever-data">1.2 Transforming the coordination of the dengue fever data</a></li>
+  <li><a href="#filtering-important-columns-for-analysis" id="toc-filtering-important-columns-for-analysis" class="nav-link" data-scroll-target="#filtering-important-columns-for-analysis">1.3 Filtering Important Columns for analysis</a></li>
   </ul></li>
-  <li><a href="#loading-geo-spatial-data-tainan-village-data" id="toc-loading-geo-spatial-data-tainan-village-data" class="nav-link" data-scroll-target="#loading-geo-spatial-data-tainan-village-data">2. Loading Geo-spatial Data: TaiNan Village Data</a></li>
+  <li><a href="#loading-geo-spatial-data-tainan-village-data" id="toc-loading-geo-spatial-data-tainan-village-data" class="nav-link" data-scroll-target="#loading-geo-spatial-data-tainan-village-data">2. Loading Geo-spatial Data: TaiNan Village Data</a>
+  <ul class="collapse">
+  <li><a href="#understanding-the-geospatial-data" id="toc-understanding-the-geospatial-data" class="nav-link" data-scroll-target="#understanding-the-geospatial-data">2.1 Understanding the geospatial data</a></li>
+  </ul></li>
+  <li><a href="#joining-data-for-analysis" id="toc-joining-data-for-analysis" class="nav-link" data-scroll-target="#joining-data-for-analysis">3. Joining Data for analysis</a></li>
   </ul>
 </nav>
     </div>
@@ -256,7 +262,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">February 26, 2024</p>
+      <p class="date">March 2, 2024</p>
     </div>
   </div>
   
@@ -279,33 +285,451 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>dengue_daily <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/aspatial/Dengue_Daily.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <section id="filtering-the-data-into-week-31---50-of-2023-and-selecting-the-necessary-data" class="level3">
-<h3 class="anchored" data-anchor-id="filtering-the-data-into-week-31---50-of-2023-and-selecting-the-necessary-data">Filtering the data into Week 31 - 50 of 2023 and selecting the necessary data</h3>
+<h3 class="anchored" data-anchor-id="filtering-the-data-into-week-31---50-of-2023-and-selecting-the-necessary-data">1.1 Filtering the data into Week 31 - 50 of 2023 and selecting the necessary data</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>filtered_data <span class="ot">&lt;-</span> dengue_daily[dengue_daily<span class="sc">$</span>發病日 <span class="sc">&gt;=</span> <span class="fu">as.Date</span>(<span class="st">"2023-08-01"</span>) <span class="sc">&amp;</span> dengue_daily<span class="sc">$</span>發病日 <span class="sc">&lt;=</span> <span class="fu">as.Date</span>(<span class="st">"2023-12-17"</span>), ]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>dengue_filtered <span class="ot">&lt;-</span> dengue_daily[dengue_daily<span class="sc">$</span>發病日 <span class="sc">&gt;=</span> <span class="fu">as.Date</span>(<span class="st">"2023-07-30"</span>) <span class="sc">&amp;</span> dengue_daily<span class="sc">$</span>發病日 <span class="sc">&lt;=</span> <span class="fu">as.Date</span>(<span class="st">"2023-12-16"</span>), ] </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_rds</span>(filtered_data, <span class="st">"data/rds/filtered_data.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>dengue_filtered[<span class="st">'epi_week'</span>] <span class="ot">&lt;-</span> <span class="fu">epiweek</span>(dengue_filtered<span class="sc">$</span>發病日)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">colSums</span>(<span class="fu">is.na</span>(dengue_filtered))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>            發病日         個案研判日             通報日               性別 
+                 0                  0                  0                  0 
+            年齡層           居住縣市           居住鄉鎮           居住村里 
+                 0                  0                  0                  0 
+        最小統計區  最小統計區中心點X  最小統計區中心點Y         一級統計區 
+                 0                  0                  0                  0 
+        二級統計區           感染縣市           感染鄉鎮           感染村里 
+                 0                  0                  0                  0 
+      是否境外移入           感染國家         確定病例數       居住村里代碼 
+                 0                  0                  0                  0 
+      感染村里代碼             血清型 內政部居住縣市代碼 內政部居住鄉鎮代碼 
+                 0                  0                  0                  0 
+內政部感染縣市代碼 內政部感染鄉鎮代碼           epi_week 
+                 0                  0                  0 </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">#write_rds(dengue_filtered, "data/rds/dengue_filtered.rds")</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="transforming-the-coordination-of-the-dengue-fever-data" class="level3">
+<h3 class="anchored" data-anchor-id="transforming-the-coordination-of-the-dengue-fever-data">1.2 Transforming the coordination of the dengue fever data</h3>
+<section id="checking-of-null-values-col-最小統計區中心點x-and-最小統計區中心點y" class="level4">
+<h4 class="anchored" data-anchor-id="checking-of-null-values-col-最小統計區中心點x-and-最小統計區中心點y">1.2.1 Checking of null values col: 最小統計區中心點X and 最小統計區中心點Y</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">is.na</span>(dengue_filtered<span class="sc">$</span>最小統計區中心點X))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">is.nan</span>(dengue_filtered<span class="sc">$</span>最小統計區中心點X))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0</code></pre>
+</div>
+</div>
+<p>Since fan</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">is.na</span>(dengue_filtered<span class="sc">$</span>最小統計區中心點Y))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">is.nan</span>(dengue_filtered<span class="sc">$</span>最小統計區中心點Y))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(dengue_filtered<span class="sc">$</span>最小統計區中心點X)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "character"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(dengue_filtered<span class="sc">$</span>最小統計區中心點Y)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "character"</code></pre>
+</div>
+</div>
+</section>
+<section id="changing-the-class-type-of-important-columns" class="level4">
+<h4 class="anchored" data-anchor-id="changing-the-class-type-of-important-columns">1.2.2 Changing the class type of important columns</h4>
+<p><strong>Since the class type of col: is in “character”, we need to change the data type into numerical</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert character columns to numeric</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>dengue_filtered<span class="sc">$</span>最小統計區中心點X <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(dengue_filtered<span class="sc">$</span>最小統計區中心點X)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>dengue_filtered<span class="sc">$</span>最小統計區中心點Y <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(dengue_filtered<span class="sc">$</span>最小統計區中心點Y)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove rows with non-numeric values in the specified columns</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>dengue_filtered <span class="ot">&lt;-</span> dengue_filtered[<span class="sc">!</span><span class="fu">is.na</span>(<span class="fu">as.numeric</span>(dengue_filtered<span class="sc">$</span>最小統計區中心點X)), ]</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>dengue_filtered <span class="ot">&lt;-</span> dengue_filtered[<span class="sc">!</span><span class="fu">is.na</span>(<span class="fu">as.numeric</span>(dengue_filtered<span class="sc">$</span>最小統計區中心點Y)), ]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(dengue_filtered<span class="sc">$</span>最小統計區中心點X)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "numeric"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(dengue_filtered<span class="sc">$</span>最小統計區中心點Y)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "numeric"</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>dengue_sf <span class="ot">&lt;-</span> <span class="fu">st_as_sf</span>(dengue_filtered, </span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">coords =</span> <span class="fu">c</span>(<span class="st">"最小統計區中心點X"</span>,<span class="st">"最小統計區中心點Y"</span>),</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>                      <span class="at">crs=</span><span class="dv">3824</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(dengue_sf)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    發病日           個案研判日           通報日              性別          
+ Length:25461       Length:25461       Length:25461       Length:25461      
+ Class :character   Class :character   Class :character   Class :character  
+ Mode  :character   Mode  :character   Mode  :character   Mode  :character  
+                                                                            
+                                                                            
+                                                                            
+    年齡層            居住縣市           居住鄉鎮           居住村里        
+ Length:25461       Length:25461       Length:25461       Length:25461      
+ Class :character   Class :character   Class :character   Class :character  
+ Mode  :character   Mode  :character   Mode  :character   Mode  :character  
+                                                                            
+                                                                            
+                                                                            
+  最小統計區         一級統計區         二級統計區          感染縣市        
+ Length:25461       Length:25461       Length:25461       Length:25461      
+ Class :character   Class :character   Class :character   Class :character  
+ Mode  :character   Mode  :character   Mode  :character   Mode  :character  
+                                                                            
+                                                                            
+                                                                            
+   感染鄉鎮           感染村里         是否境外移入         感染國家        
+ Length:25461       Length:25461       Length:25461       Length:25461      
+ Class :character   Class :character   Class :character   Class :character  
+ Mode  :character   Mode  :character   Mode  :character   Mode  :character  
+                                                                            
+                                                                            
+                                                                            
+   確定病例數 居住村里代碼       感染村里代碼          血清型         
+ Min.   :1    Length:25461       Length:25461       Length:25461      
+ 1st Qu.:1    Class :character   Class :character   Class :character  
+ Median :1    Mode  :character   Mode  :character   Mode  :character  
+ Mean   :1                                                            
+ 3rd Qu.:1                                                            
+ Max.   :1                                                            
+ 內政部居住縣市代碼 內政部居住鄉鎮代碼 內政部感染縣市代碼 內政部感染鄉鎮代碼
+ Length:25461       Length:25461       Length:25461       Length:25461      
+ Class :character   Class :character   Class :character   Class :character  
+ Mode  :character   Mode  :character   Mode  :character   Mode  :character  
+                                                                            
+                                                                            
+                                                                            
+    epi_week              geometry    
+ Min.   :31.00   POINT        :25461  
+ 1st Qu.:37.00   epsg:3824    :    0  
+ Median :40.00   +proj=long...:    0  
+ Mean   :39.96                        
+ 3rd Qu.:43.00                        
+ Max.   :50.00                        </code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="filtering-important-columns-for-analysis" class="level3">
+<h3 class="anchored" data-anchor-id="filtering-important-columns-for-analysis">1.3 Filtering Important Columns for analysis</h3>
+<section id="changing-the-column-names-into-english-for-easier-reading" class="level4">
+<h4 class="anchored" data-anchor-id="changing-the-column-names-into-english-for-easier-reading">1.3.1 Changing the column names into English for easier reading</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(dengue_sf)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "發病日"             "個案研判日"         "通報日"            
+ [4] "性別"               "年齡層"             "居住縣市"          
+ [7] "居住鄉鎮"           "居住村里"           "最小統計區"        
+[10] "一級統計區"         "二級統計區"         "感染縣市"          
+[13] "感染鄉鎮"           "感染村里"           "是否境外移入"      
+[16] "感染國家"           "確定病例數"         "居住村里代碼"      
+[19] "感染村里代碼"       "血清型"             "內政部居住縣市代碼"
+[22] "內政部居住鄉鎮代碼" "內政部感染縣市代碼" "內政部感染鄉鎮代碼"
+[25] "epi_week"           "geometry"          </code></pre>
+</div>
+</div>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Attribute</th>
+<th>Translation in English</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>發病日</td>
+<td>Onset date</td>
+</tr>
+<tr class="even">
+<td>個案研判日</td>
+<td>Case confirmation date</td>
+</tr>
+<tr class="odd">
+<td>通報日</td>
+<td>Reporting date</td>
+</tr>
+<tr class="even">
+<td>性別</td>
+<td>Gender</td>
+</tr>
+<tr class="odd">
+<td>年齡層</td>
+<td>Age Group</td>
+</tr>
+<tr class="even">
+<td>居住縣市</td>
+<td>Residential County</td>
+</tr>
+<tr class="odd">
+<td>居住鄉鎮</td>
+<td>Residential Town name</td>
+</tr>
+<tr class="even">
+<td>居住村里</td>
+<td>Residential Village</td>
+</tr>
+<tr class="odd">
+<td>最小統計區</td>
+<td>Smallest statistical area</td>
+</tr>
+<tr class="even">
+<td>一級統計區</td>
+<td>First-level statistical area</td>
+</tr>
+<tr class="odd">
+<td>二級統計區</td>
+<td>Second-level statistical area</td>
+</tr>
+<tr class="even">
+<td>感染縣市</td>
+<td>Infected county</td>
+</tr>
+<tr class="odd">
+<td>感染鄉鎮</td>
+<td>Infected town</td>
+</tr>
+<tr class="even">
+<td>感染村里</td>
+<td>Infected village</td>
+</tr>
+<tr class="odd">
+<td>是否境外移入</td>
+<td>Whether imported from overseas</td>
+</tr>
+<tr class="even">
+<td>感染國家</td>
+<td>Infected country</td>
+</tr>
+<tr class="odd">
+<td>確定病例數</td>
+<td>Confirmed case count</td>
+</tr>
+<tr class="even">
+<td>居住村里代碼</td>
+<td>Residential village code</td>
+</tr>
+<tr class="odd">
+<td>感染村里代碼</td>
+<td>Infected village code</td>
+</tr>
+<tr class="even">
+<td>血清型</td>
+<td>Serotype</td>
+</tr>
+<tr class="odd">
+<td>內政部居住縣市代碼</td>
+<td>Internal residential county code</td>
+</tr>
+<tr class="even">
+<td>內政部居住鄉鎮代碼</td>
+<td>Internal residential town code</td>
+</tr>
+<tr class="odd">
+<td>內政部感染縣市代碼</td>
+<td>Internal infected county code</td>
+</tr>
+<tr class="even">
+<td>內政部感染鄉鎮代碼</td>
+<td>Internal infected town code</td>
+</tr>
+</tbody>
+</table>
+<p>As there are many rows of data, I will be only transforming useful columns, such as 發病日, 通報日, 性別, 年齡層, 感染縣市, 感染鄉鎮, 感染村里, ndefinedndefinednd</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>eng_dengue_data <span class="ot">&lt;-</span> dengue_sf <span class="sc">%&gt;%</span> <span class="fu">rename</span>(</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">ONSET_DAY =</span> 發病日,</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">CASE_CONFIRMATION_DAY =</span> 通報日, </span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">GENDER =</span> 性別,</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">AGE_GRP =</span> 年齡層,</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">COUNTYNAME =</span> 感染縣市, </span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">TOWNNAME =</span> 感染鄉鎮, </span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">VILLNAME =</span> 感染村里,</span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">INFECTED_COUNTRY =</span> 感染國家, </span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">CONFIRMED_CASE_COUNT =</span> 確定病例數</span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="reduction-of-data-size" class="level4">
+<h4 class="anchored" data-anchor-id="reduction-of-data-size">1.3.2 Reduction of data size</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>dengue_sf_1 <span class="ot">&lt;-</span> eng_dengue_data[, <span class="fu">c</span>(<span class="st">"ONSET_DAY"</span>, <span class="st">"CASE_CONFIRMATION_DAY"</span>, <span class="st">"GENDER"</span>, <span class="st">"AGE_GRP"</span>, <span class="st">"COUNTYNAME"</span>, <span class="st">"TOWNNAME"</span>, <span class="st">"VILLNAME"</span>, <span class="st">"INFECTED_COUNTRY"</span>,<span class="st">"CONFIRMED_CASE_COUNT"</span>, <span class="st">"epi_week"</span>,<span class="st">"geometry"</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>dengue_data <span class="ot">&lt;-</span> <span class="fu">write_rds</span>(dengue_sf_1, <span class="st">"data/rds/dengue_data.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
 </section>
 </section>
 <section id="loading-geo-spatial-data-tainan-village-data" class="level2">
 <h2 class="anchored" data-anchor-id="loading-geo-spatial-data-tainan-village-data">2. Loading Geo-spatial Data: TaiNan Village Data</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>tainan_village <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"data/geospatial"</span>, </span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>                          <span class="at">layer =</span> <span class="st">"TAINAN_VILLAGE"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>tainan_village <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"data/geospatial"</span>, </span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>                          <span class="at">layer =</span> <span class="st">"TAINAN_VILLAGE"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Reading layer `TAINAN_VILLAGE' from data source 
+  `C:\Users\Kachel Lee\ka33rina\IS415GAA\Take-home_Ex\Take-home_Ex2\data\geospatial' 
+  using driver `ESRI Shapefile'
+Simple feature collection with 649 features and 10 fields
+Geometry type: POLYGON
+Dimension:     XY
+Bounding box:  xmin: 120.0269 ymin: 22.88751 xmax: 120.6563 ymax: 23.41374
+Geodetic CRS:  TWD97</code></pre>
+</div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>filtered_tainan_village <span class="ot">&lt;-</span> tainan_village <span class="sc">%&gt;%</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(TOWNID <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"D01"</span>, <span class="st">"D02"</span>, <span class="st">"D04"</span>, <span class="st">"D06"</span>, <span class="st">"D07"</span>, <span class="st">"D08"</span>, <span class="st">"D32"</span>, <span class="st">"D39"</span>)) <span class="sc">%&gt;%</span> <span class="fu">st_transform</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(tainan_village)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Simple feature collection with 6 features and 10 fields
+Geometry type: POLYGON
+Dimension:     XY
+Bounding box:  xmin: 120.053 ymin: 22.93251 xmax: 120.2905 ymax: 23.16919
+Geodetic CRS:  TWD97
+     VILLCODE COUNTYNAME TOWNNAME VILLNAME        VILLENG COUNTYID COUNTYCODE
+1 67000280002     臺南市   歸仁區   六甲里    Liujia Vil.        D      67000
+2 67000350032     臺南市   安南區   青草里   Qingcao Vil.        D      67000
+3 67000150009     臺南市   七股區   溪南里     Xinan Vil.        D      67000
+4 67000150010     臺南市   七股區   七股里      Qigu Vil.        D      67000
+5 67000150008     臺南市   七股區   龍山里  Longshan Vil.        D      67000
+6 67000150017     臺南市   七股區   中寮里 Zhongliao Vil.        D      67000
+  TOWNID TOWNCODE NOTE                       geometry
+1    D33 67000280 &lt;NA&gt; POLYGON ((120.2725 22.95868...
+2    D06 67000350 &lt;NA&gt; POLYGON ((120.1176 23.08387...
+3    D22 67000150 &lt;NA&gt; POLYGON ((120.121 23.1355, ...
+4    D22 67000150 &lt;NA&gt; POLYGON ((120.1312 23.1371,...
+5    D22 67000150 &lt;NA&gt; POLYGON ((120.0845 23.13503...
+6    D22 67000150 &lt;NA&gt; POLYGON ((120.126 23.16917,...</code></pre>
+</div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_rds</span>(filtered_tainan_village, <span class="st">"data/rds/filtered_tainan_village.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>filtered_tainan_village <span class="ot">&lt;-</span> tainan_village <span class="sc">%&gt;%</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(TOWNID <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"D01"</span>, <span class="st">"D02"</span>, <span class="st">"D04"</span>, <span class="st">"D06"</span>, <span class="st">"D07"</span>, <span class="st">"D08"</span>, <span class="st">"D32"</span>, <span class="st">"D39"</span>)) <span class="sc">%&gt;%</span> <span class="fu">st_transform</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">#plot(st_geometry(filtered_tainan_village))</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_rds</span>(filtered_tainan_village, <span class="st">"data/rds/filtered_tainan_village.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="understanding-the-geospatial-data" class="level3">
+<h3 class="anchored" data-anchor-id="understanding-the-geospatial-data">2.1 Understanding the geospatial data</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">st_geometry</span>(filtered_tainan_village))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">#tainan_dengue &lt;- left_join(filtered_tainan_village, filtered_data, by = "VILLCODE")</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_mode</span>(<span class="st">"plot"</span>)</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(filtered_tainan_village) <span class="sc">+</span></span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>(<span class="st">"TOWNID"</span>)</span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_mode</span>(<span class="st">"plot"</span>)</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(filtered_tainan_village) <span class="sc">+</span></span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_fill</span>(<span class="st">"VILLNAME"</span>, </span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">alpha =</span> <span class="fl">0.2</span>) <span class="sc">+</span></span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="joining-data-for-analysis" class="level1">
+<h1>3. Joining Data for analysis</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>dengue_data <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="st">"data/rds/dengue_data.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>tainan_v <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="st">"data/rds/filtered_tainan_village.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">st_crs</span>(dengue_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Coordinate Reference System:
+  User input: EPSG:3824 
+  wkt:
+GEOGCRS["TWD97",
+    DATUM["Taiwan Datum 1997",
+        ELLIPSOID["GRS 1980",6378137,298.257222101,
+            LENGTHUNIT["metre",1]]],
+    PRIMEM["Greenwich",0,
+        ANGLEUNIT["degree",0.0174532925199433]],
+    CS[ellipsoidal,2],
+        AXIS["geodetic latitude (Lat)",north,
+            ORDER[1],
+            ANGLEUNIT["degree",0.0174532925199433]],
+        AXIS["geodetic longitude (Lon)",east,
+            ORDER[2],
+            ANGLEUNIT["degree",0.0174532925199433]],
+    USAGE[
+        SCOPE["Horizontal component of 3D system."],
+        AREA["Taiwan, Republic of China - onshore and offshore - Taiwan Island, Penghu (Pescadores) Islands."],
+        BBOX[17.36,114.32,26.96,123.61]],
+    ID["EPSG",3824]]</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="co">#st_crs(tainan_v)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>tainan_dengue <span class="ot">&lt;-</span> <span class="fu">st_join</span>(tainan_v,dengue_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_rds</span>(tainan_dengue, <span class="st">"data/rds/tainan_dengue.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(tainan_dengue)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Simple feature collection with 6 features and 20 fields
+Geometry type: POLYGON
+Dimension:     XY
+Bounding box:  xmin: 120.0936 ymin: 22.9156 xmax: 120.2585 ymax: 23.08827
+Geodetic CRS:  TWD97
+       VILLCODE COUNTYNAME.x TOWNNAME.x VILLNAME.x      VILLENG COUNTYID
+1   67000350032       臺南市     安南區     青草里 Qingcao Vil.        D
+1.1 67000350032       臺南市     安南區     青草里 Qingcao Vil.        D
+2   67000270011       臺南市     仁德區     保安里  Bao'an Vil.        D
+2.1 67000270011       臺南市     仁德區     保安里  Bao'an Vil.        D
+2.2 67000270011       臺南市     仁德區     保安里  Bao'an Vil.        D
+2.3 67000270011       臺南市     仁德區     保安里  Bao'an Vil.        D
+    COUNTYCODE TOWNID TOWNCODE NOTE  ONSET_DAY CASE_CONFIRMATION_DAY GENDER
+1        67000    D06 67000350 &lt;NA&gt; 2023/09/14            2023/09/15     男
+1.1      67000    D06 67000350 &lt;NA&gt; 2023/10/12            2023/10/12     男
+2        67000    D32 67000270 &lt;NA&gt; 2023/08/04            2023/08/06     男
+2.1      67000    D32 67000270 &lt;NA&gt; 2023/09/10            2023/09/10     女
+2.2      67000    D32 67000270 &lt;NA&gt; 2023/09/11            2023/09/11     男
+2.3      67000    D32 67000270 &lt;NA&gt; 2023/09/16            2023/09/17     男
+    AGE_GRP COUNTYNAME.y TOWNNAME.y VILLNAME.y INFECTED_COUNTRY
+1     40-44       台南市     安南區       None         中華民國
+1.1   30-34       台南市       None       None         中華民國
+2     25-29       台南市     仁德區       None         中華民國
+2.1     70+       台南市     仁德區       None         中華民國
+2.2   25-29       台南市     仁德區       None         中華民國
+2.3   40-44       台南市     仁德區       None         中華民國
+    CONFIRMED_CASE_COUNT epi_week                       geometry
+1                      1       37 POLYGON ((120.1176 23.08387...
+1.1                    1       41 POLYGON ((120.1176 23.08387...
+2                      1       31 POLYGON ((120.2304 22.93544...
+2.1                    1       37 POLYGON ((120.2304 22.93544...
+2.2                    1       37 POLYGON ((120.2304 22.93544...
+2.3                    1       37 POLYGON ((120.2304 22.93544...</code></pre>
+</div>
 </div>
 
 
