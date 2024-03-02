@@ -473,9 +473,40 @@ print(unique(gistar_map_pvalue$VILLNAME))
 
 Since there are 145 unique villages with p-value that are lower than 0.05, we would randomly select 3 of them to do a further analysis.
 
+## 6. In-depth Analysis
+
 Let's take Sanhe Village 三合里, 大安里 Da'an Village and 安西里 Anxi Village as an example.
 
-### 5.8.1 **Mann-Kendall Test**
+```{r}
+desired_villages <- c("Sanhe Vil.", "Da'an Vil.", "Anxi Vil.")
+filtered_data <- subset(tainan_v, VILLENG %in% desired_villages)
+
+highlight_colors <- c("Sanhe Vil." = "blue", 
+                      "Da'an Vil." = "green", 
+                      "Anxi Vil." = "red")
+
+indepth_map <- tm_shape(tainan_v) +
+  tm_borders(lwd = 0.5) +  # Add borders for all villages
+  tm_fill(col = "grey") +  # Fill all villages with grey color
+  
+  
+  tm_shape(filtered_data) +
+  
+ tm_fill(col = "VILLENG", palette = highlight_colors, title = "Highlighted Villages")+
+  tm_borders(col = "black", lwd = 1) +  
+  tm_layout(main.title = "Futher Analysis on 3 villages",
+            main.title.position = "center",
+            main.title.size = 1.2,
+            legend.height = 0.45,
+            legend.width = 0.35,
+            frame = TRUE)+
+
+
+tmap_mode("plot")
+indepth_map
+```
+
+### 6.1 **Mann-Kendall Test**
 
 ```{r}
 sanhe_v <- gistar_map %>% 
@@ -568,14 +599,6 @@ ehsa <- gistar_map %>%
 ```
 
 ```{r}
-nrow(ehsa[ehsa$sl < 0.05,])
-```
-
-```{r}
-nrow(ehsa[ehsa$sl >= 0.05,])
-```
-
-```{r}
 ehsa <- emerging_hotspot_analysis(
   x = tainan_st, 
   .var = "total_cases",
@@ -591,7 +614,7 @@ ggplot(data = ehsa,
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-### 5.9.1 Visualizing EHSA
+### 6.2 Visualizing EHSA
 
 ```{r}
 tn_ehsa <- tainan_v %>%
@@ -605,7 +628,7 @@ ehsa_sig <- tn_ehsa  %>%
 
 
 ehsa_map <- tm_shape(tn_ehsa) +
-  tm_polygons(id = "VILLENG") +
+  tm_polygons(id = "VILLCODE") +
   tm_borders(alpha = 0.5) +
 tm_shape(ehsa_sig) +
   tm_fill("classification") + 
