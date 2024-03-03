@@ -1,5 +1,5 @@
 ---
-title: "Take-home_Ex2"
+title: "Take-home Exercise 2: Dengue Fever in Taiwan in 2015"
 format: html
 execute:  
   message: false 
@@ -9,8 +9,14 @@ date: "`r Sys.Date()`"
 
 # Background of Dengue Fever in Taiwan in 2015
 
+[Dengue Hemorrhagic Fever](https://www.cdc.gov/dengue/resources/denguedhf-information-for-health-care-practitioners_2009.pdf) (in short dengue fever) is one of the most widespread mosquito-borne diseases in the most tropical and subtropical regions. It is an acute disease caused by dengue virus infection which is transmitted by female Aedes aegypti and Aedes albopictus mosquitoes. In 2015, Taiwan had recorded the most severe dengue fever outbreak with more than 43,000 dengue cases and 228 deaths. Since then, the annual reported dengue fever cases were maintained at the level of not more than 200 cases. However, in 2023, Taiwan recorded 26703 dengue fever cases.
+
+In this analysis, we will be focusing on the dengue cases happened from week 31 to 50 in 8 counties of Tainan City, Taiwan.
+
+## Getting Started: Loading of necessary packages 
+
 ```{r}
-pacman::p_load(arrow, lubridate, tidyverse,maptools, sf, spNetwork, raster, spatstat, tmap, sfdep, spdep, dplyr)
+pacman::p_load(arrow, lubridate, tidyverse,maptools, sf, spNetwork, raster, spatstat, tmap, sfdep, spdep, dplyr, plotly)
 ```
 
 ## 1. Importing Data
@@ -96,7 +102,6 @@ town_data <- tainan_dengue_2 %>%
   group_by(TOWNID) %>%
   summarise(total_cases = sum(CONFIRMED_CASE_COUNT))
 
-# Now you can print the summarized data again
 print(town_data)
 ```
 
@@ -148,14 +153,6 @@ tmap_arrange(town_data_map, v_data_map, nrow = 1)
 ### 2.4 Group by epic_week
 
 ```{r}
-new_vw_dengue <- tainan_dengue %>%
-  group_by(VILLCODE, epi_week) %>% 
-  summarise(total_cases = sum(CONFIRMED_CASE_COUNT))  %>%
-  complete(epi_week = 31:50, fill = list(total_cases = 0)) %>%
-  st_drop_geometry()
-```
-
-```{r}
 vw_dengue <- tainan_dengue_2 %>%
   group_by(VILLCODE, epi_week) %>% 
   summarise(total_cases = sum(CONFIRMED_CASE_COUNT))  %>%
@@ -171,29 +168,12 @@ vw_dengue <- na.omit(vw_dengue) %>%  st_drop_geometry()
 ```
 
 ```{r}
-
-#vw_dengue_2 <- vw_dengue %>%
-  #left_join(tainan_v, by = "VILLCODE")%>% 
-  #dplyr:: select(1:3,14)%>% 
-  #drop_na()
-```
-
-```{r}
 vw_dengue_3 <- vw_dengue %>%
   dplyr:: select(-geometry)
 ```
 
 ```{r}
 vw_dengue_3 <- as_tibble(vw_dengue_3)
-```
-
-```{r}
-#colSums(is.na(vw_dengue_2))
-
-```
-
-```{r}
-#class(tainan_dengue_2$geometry)
 ```
 
 ## 3. Global Measure of Spatial Autocorrelation
@@ -409,6 +389,8 @@ is_spacetime_cube(tainan_st)
 
 ### 5.7 **Computing Gi\* - Deriving the spatial weights**
 
+The code chunk below will be used to identify neighbors and to derive an inverse distance weights.
+
 ```{r}
 tainan_nb <- tainan_st %>%
   activate("geometry") %>%
@@ -429,7 +411,7 @@ glimpse(tainan_st)
 head(tainan_nb)
 ```
 
-### 5.8 **Computing Gi -**
+### 5.8 **Computing Gi\***
 
 ```{r}
 gi_stars <- tainan_nb %>% 
@@ -459,7 +441,7 @@ tm
 From the above map, the darker the red color, indicating them having a lower p-values. We can interpret that those villages are more likely to be significantly associated with higher or lower dengue cases compared to their neighbors. Let's find out more by filtering out those villages with less than 0.05 p-value.
 
 ```{r}
-gistar_map_pvalue <- subset(gistar_map, p_value <= 0.05)
+gistar_map_pvalue <- subset(gistar_map, p_value < 0.05)
 ```
 
 ```{r}
@@ -471,11 +453,11 @@ print(length(unique(gistar_map_pvalue$VILLNAME)))
 print(unique(gistar_map_pvalue$VILLNAME))
 ```
 
-Since there are 145 unique villages with p-value that are lower than 0.05, we would randomly select 3 of them to do a further analysis.
+Since there are 141 unique villages with p-value that are lower than 0.05, we would randomly select 3 of them to do a further analysis.
 
 ## 6. In-depth Analysis
 
-Let's take Sanhe Village 三合里, 大安里 Da'an Village and 安西里 Anxi Village as an example.
+Let's take 三合里 Sanhe Village , 大安里 Da'an Village and 安西里 Anxi Village as an example.
 
 ```{r}
 desired_villages <- c("Sanhe Vil.", "Da'an Vil.", "Anxi Vil.")
@@ -508,6 +490,8 @@ indepth_map
 
 ### 6.1 **Mann-Kendall Test**
 
+With these Gi\* measures we can then evaluate each location for a trend using the Mann-Kendall test.
+
 ```{r}
 sanhe_v <- gistar_map %>% 
   ungroup() %>% 
@@ -517,11 +501,13 @@ sanhe_v <- gistar_map %>%
 ```
 
 ```{r}
-ggplot(data = sanhe_v, 
+sanhe <- ggplot(data = sanhe_v, 
        aes(x = epi_week, 
            y = gi_star)) +
   geom_line() +
   theme_light()
+
+ggplotly(sanhe)
 ```
 
 ```{r}
@@ -532,11 +518,13 @@ daan_v <- gistar_map %>%
 ```
 
 ```{r}
-ggplot(data = daan_v, 
+daan <- ggplot(data = daan_v, 
        aes(x = epi_week, 
            y = gi_star)) +
   geom_line() +
   theme_light()
+
+ggplotly(daan)
 ```
 
 ```{r}
@@ -547,23 +535,30 @@ anxi_v <- gistar_map %>%
 ```
 
 ```{r}
-ggplot(data = anxi_v, 
+anxi <- ggplot(data = anxi_v, 
        aes(x = epi_week, 
            y = gi_star)) +
   geom_line() +
   theme_light()
+
+ggplotly(anxi)
 ```
 
 ```{r}
 combined_data <- rbind(daan_v, sanhe_v, anxi_v)
 
 # Plot using ggplot
-ggplot(combined_data, aes(x = epi_week, y = gi_star, color = VILLENG)) +
+combined <- ggplot(combined_data, aes(x = epi_week, y = gi_star, color = VILLENG)) +
   geom_line() +
   labs(x = "Epi Week", y = "GI Star", color = "Village Name") +
-  ggtitle("GI Star Trend for Da'an Vil., Sanhe Vil. and AnXi Vil.") +
+  ggtitle("GI * Trend for Da'an Vil., Sanhe Vil. and AnXi Vil.") +
   theme_minimal()
+
+
+ggplotly(combined)
 ```
+
+From the above visualization, it shows that the 3 villages has much fluctuations over the weeks.
 
 ```{r}
 daan_v %>%
@@ -614,6 +609,8 @@ ggplot(data = ehsa,
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
+From the above visualization, it is known that oscilating hotspot has the highest number of villages.
+
 ### 6.2 Visualizing EHSA
 
 ```{r}
@@ -632,8 +629,31 @@ ehsa_map <- tm_shape(tn_ehsa) +
   tm_borders(alpha = 0.5) +
 tm_shape(ehsa_sig) +
   tm_fill("classification") + 
-  tm_borders(alpha = 0.4)
+  tm_borders(alpha = 0.4)+ 
+   tm_layout(main.title = "EHSA distribution",
+            main.title.position = "center",
+            main.title.size = 1.2,
+            legend.height = 0.45,
+            legend.width = 0.35,
+            frame = TRUE)+
 
 tmap_mode("view")
 ehsa_map
 ```
+
+Let's find out which class do 三合里 Sanhe Village , 大安里 Da'an Village and 安西里 Anxi Village belong to.
+
+```{r}
+tmap_mode('plot')
+tmap_arrange(indepth_map, ehsa_map, ncol=2)
+```
+
+```{r}
+villages_of_interest <- c("Sanhe Vil.", "Da'an Vil.", "Anxi Vil.")
+
+classification <- tn_ehsa[tn_ehsa$VILLENG %in% villages_of_interest, "classification"]
+
+print(classification)
+```
+
+What we can conclude is that they are all oscilating hotspots.

@@ -1,5 +1,5 @@
 ---
-title: "Take-home_Ex2: Data Preparation"
+title: "Take-home Exercise 2: Data Preparation"
 format: html
 execute:  
   message: false 
@@ -7,7 +7,7 @@ execute:
 date: "`r Sys.Date()`" 
 ---
 
-This page showcases the steps of doing data preparation.
+**This page showcases the steps of doing data preparation.**
 
 ## Getting Started
 
@@ -129,7 +129,7 @@ colnames(dengue_sf)
 | 內政部感染縣市代碼 | Internal infected county code    |
 | 內政部感染鄉鎮代碼 | Internal infected town code      |
 
-As there are many rows of data, I will be only transforming useful columns, such as 發病日, 通報日, 性別, 年齡層, 感染縣市, 感染鄉鎮, 感染村里, ndefinedndefinednd
+As there are many rows of data, I will be only transforming useful columns, such as 發病日, 通報日, 性別, 年齡層, 感染縣市, 感染鄉鎮, 感染村里, 感染國家 and 確定病例數.
 
 ```{r}
 eng_dengue_data <- dengue_sf %>% rename(

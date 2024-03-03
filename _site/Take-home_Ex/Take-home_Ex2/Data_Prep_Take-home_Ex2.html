@@ -6,9 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2024-03-02">
+<meta name="dcterms.date" content="2024-03-03">
 
-<title>IS415-GAA - Take-home_Ex2: Data Preparation</title>
+<title>IS415-GAA - Take-home Exercise 2: Data Preparation</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -251,7 +251,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Take-home_Ex2: Data Preparation</h1>
+<h1 class="title">Take-home Exercise 2: Data Preparation</h1>
 </div>
 
 
@@ -262,7 +262,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">March 2, 2024</p>
+      <p class="date">March 3, 2024</p>
     </div>
   </div>
   
@@ -272,7 +272,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </header>
 
-<p>This page showcases the steps of doing data preparation.</p>
+<p><strong>This page showcases the steps of doing data preparation.</strong></p>
 <section id="getting-started" class="level2">
 <h2 class="anchored" data-anchor-id="getting-started">Getting Started</h2>
 <div class="cell">
@@ -559,7 +559,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 </tbody>
 </table>
-<p>As there are many rows of data, I will be only transforming useful columns, such as 發病日, 通報日, 性別, 年齡層, 感染縣市, 感染鄉鎮, 感染村里, ndefinedndefinednd</p>
+<p>As there are many rows of data, I will be only transforming useful columns, such as 發病日, 通報日, 性別, 年齡層, 感染縣市, 感染鄉鎮, 感染村里, 感染國家 and 確定病例數.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>eng_dengue_data <span class="ot">&lt;-</span> dengue_sf <span class="sc">%&gt;%</span> <span class="fu">rename</span>(</span>
 <span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">ONSET_DAY =</span> 發病日,</span>
