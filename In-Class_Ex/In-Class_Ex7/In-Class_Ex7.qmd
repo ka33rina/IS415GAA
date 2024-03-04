@@ -67,7 +67,7 @@ ict_derived <- ict %>%
 ```
 
 ```{r}
-
+summary(ict_derived)
 ```
 
 ```{r}

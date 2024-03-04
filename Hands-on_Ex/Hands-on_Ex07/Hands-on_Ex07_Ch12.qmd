@@ -402,7 +402,9 @@ heatmaply(normalize(shan_ict_mat),
 groups <- as.factor(cutree(hclust_ward, k=6))
 ```
 
+
 ```{r}
+# rename the field name
 shan_sf_cluster <- cbind(shan_sf, as.matrix(groups)) %>%
   rename(`CLUSTER`=`as.matrix.groups.`)
 ```
@@ -416,6 +418,7 @@ qtm(shan_sf_cluster, "CLUSTER")
 ### **12.8.1 Converting into SpatialPolygonsDataFrame**
 
 ```{r}
+#redundant
 shan_sp <- as_Spatial(shan_sf)
 ```
 
@@ -424,6 +427,16 @@ shan_sp <- as_Spatial(shan_sf)
 ```{r}
 shan.nb <- poly2nb(shan_sp)
 summary(shan.nb)
+```
+
+```{r}
+plot(st_geometry(shan_sf), 
+     border=grey(.5))
+pts <- st_coordinates(st_centroid(shan_sf))
+plot(shan.nb,
+     pst,
+     col="blue",
+     add= TRUE)
 ```
 
 
