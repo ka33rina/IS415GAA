@@ -13,7 +13,7 @@ date: "`r Sys.Date()`"
 
 In this analysis, we will be focusing on the dengue cases happened from week 31 to 50 in 8 counties of Tainan City, Taiwan.
 
-## Getting Started: Loading of necessary packages 
+## Getting Started: Loading of necessary packages
 
 ```{r}
 pacman::p_load(arrow, lubridate, tidyverse,maptools, sf, spNetwork, raster, spatstat, tmap, sfdep, spdep, dplyr, plotly)

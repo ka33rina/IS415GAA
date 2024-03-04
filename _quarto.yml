@@ -20,7 +20,7 @@ website:
           - text: "Hands-on Excercise 6"
             href: "Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.html"
           - text: "Hands-on Excercise 7"
-            href: "Hands-on_Ex/Hands-on_Ex07/Hands-on_Ex07.html"
+            href: "Hands-on_Ex/Hands-on_Ex07/Hands-on_Ex07_Ch12.html"
           - text: "Hands-on Excercise 8"
             href: "Hands-on_Ex/Hands-on_Ex08/Hands-on_Ex08.html"
          
@@ -38,6 +38,8 @@ website:
             href: "In-Class_Ex/In-Class_Ex4/In-Class_Ex4.html"
           - text: "In-Class Exercise 5"
             href: "In-Class_Ex/In-Class_Ex5/In-Class_Ex5.html"
+          - text: "In-Class Exercise 7"
+            href: "In-Class_Ex/In-Class_Ex5/In-Class_Ex7.html"
        
        
       - text: "Take-home Exercise"
