@@ -71,7 +71,6 @@ summary(ict_derived)
 ```
 
 ```{r}
-
 ```
 
 ```{r}

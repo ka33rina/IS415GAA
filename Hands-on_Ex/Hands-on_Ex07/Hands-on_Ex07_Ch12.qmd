@@ -434,7 +434,7 @@ plot(st_geometry(shan_sf),
      border=grey(.5))
 pts <- st_coordinates(st_centroid(shan_sf))
 plot(shan.nb,
-     pst,
+     pts,
      col="blue",
      add= TRUE)
 ```
@@ -445,7 +445,7 @@ plot(shan.nb,
 plot(shan_sp, 
      border=grey(.5))
 plot(shan.nb, 
-     coordinates(shan_sp), 
+     coordinates(shan_sf), 
      col="blue", 
      add=TRUE)
 ```
