@@ -12,7 +12,7 @@ execute:
 date: "`r Sys.Date()`" 
 ---
 
-## Loading Packages 
+## Loading Packages
 
 Package: sp is noy included in the Hands-on Ex.7
 

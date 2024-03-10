@@ -12,7 +12,7 @@ execute:
 date: "`r Sys.Date()`"  
 ---
 
-# 12.1 Getting Started 
+# 12.1 Getting Started
 
 ### 12.1.2 Installing and loading R packages
 
@@ -402,7 +402,6 @@ heatmaply(normalize(shan_ict_mat),
 groups <- as.factor(cutree(hclust_ward, k=6))
 ```
 
-
 ```{r}
 # rename the field name
 shan_sf_cluster <- cbind(shan_sf, as.matrix(groups)) %>%
@@ -438,7 +437,6 @@ plot(shan.nb,
      col="blue",
      add= TRUE)
 ```
-
 
 ```{r}
 #| eval: false
