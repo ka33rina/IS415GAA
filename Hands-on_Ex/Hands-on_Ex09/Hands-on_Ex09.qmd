@@ -93,6 +93,7 @@ test_data <- testing(resale_split)
 ```
 
 ```{r}
+#| eval: false
 write_rds(train_data, "data/aspatial/train_data.rds")
 write_rds(test_data, "data/aspatial/test_data.rds")
 ```
@@ -133,6 +134,7 @@ summary(price_mlr)
 ```
 
 ```{r}
+#| eval: false
 write_rds(price_mlr, "data/aspatial/price_mlr.rds" ) 
 ```
 
@@ -148,6 +150,7 @@ train_data_sp
 ### **14.8.2 Computing adaptive bandwidth**
 
 ```{r}
+#| eval: false
 bw_adaptive <- bw.gwr(resale_price ~ floor_area_sqm +
                   storey_order + remaining_lease_mths +
                   PROX_CBD + PROX_ELDERLYCARE + PROX_HAWKER +
@@ -163,6 +166,7 @@ bw_adaptive <- bw.gwr(resale_price ~ floor_area_sqm +
 ```
 
 ```{r}
+#| eval: false
 write_rds(bw_adaptive, "data/aspatial/bw_adaptive.rds")
 ```
 
@@ -173,6 +177,7 @@ bw_adaptive <- read_rds("data/aspatial/bw_adaptive.rds")
 ```
 
 ```{r}
+#| eval: false
 gwr_adaptive <- gwr.basic(formula = resale_price ~
                             floor_area_sqm + storey_order +
                             remaining_lease_mths + PROX_CBD + 
@@ -189,6 +194,7 @@ gwr_adaptive <- gwr.basic(formula = resale_price ~
 ```
 
 ```{r}
+#| eval: false
 write_rds(gwr_adaptive, "data/aspatial/gwr_adaptive.rds")
 ```
 
@@ -258,6 +264,7 @@ coords_test <- st_coordinates(test_data)
 ```
 
 ```{r}
+#| eval: false
 coords_train <- write_rds(coords_train, "data/aspatial/coords_train.rds" )
 coords_test <- write_rds(coords_test, "data/aspatial/coords_test.rds" )
 ```
@@ -272,6 +279,7 @@ train_data <- train_data %>%
 ## **14.10 Calibrating Random Forest Model**
 
 ```{r}
+#| eval: false
 set.seed(1234)
 rf <- ranger(resale_price ~ floor_area_sqm + storey_order + 
                remaining_lease_mths + PROX_CBD + PROX_ELDERLYCARE + 
@@ -284,6 +292,7 @@ rf
 ```
 
 ```{r}
+#| eval: false
 write_rds(rf, "data/aspatial/rf.rds")
 ```
 
@@ -297,6 +306,7 @@ rf
 ### **14.11.1 Calibrating using training data**
 
 ```{r}
+#| eval: false
 set.seed(1234)
 gwRF_adaptive <- grf(formula = resale_price ~ floor_area_sqm + storey_order +
                        remaining_lease_mths + PROX_CBD + PROX_ELDERLYCARE +
@@ -311,6 +321,7 @@ gwRF_adaptive <- grf(formula = resale_price ~ floor_area_sqm + storey_order +
 ```
 
 ```{r}
+#| eval: false
 write_rds(gwRF_adaptive, "data/aspatial/gwRF_adaptive.rds")
 ```
 
@@ -330,6 +341,7 @@ test_data <- cbind(test_data, coords_test) %>%
 #### 14.11.2.2 Predicting with test data
 
 ```{r}
+#| eval: false
 gwRF_pred <- predict.grf(gwRF_adaptive, 
                            test_data, 
                            x.var.name="X",
@@ -339,27 +351,32 @@ gwRF_pred <- predict.grf(gwRF_adaptive,
 ```
 
 ```{r}
+#| eval: false
 GRF_pred <- write_rds(gwRF_pred, "data/aspatial/GRF_pred.rds")
 ```
 
 #### 14.11.2.3 Converting the predicting output into a data frame
 
 ```{r}
+
 GRF_pred <- read_rds("data/aspatial/GRF_pred.rds")
 GRF_pred_df <- as.data.frame(GRF_pred)
 ```
 
 ```{r}
+
 test_data_p <- cbind(test_data, GRF_pred_df)
 ```
 
 ```{r}
+#| eval: false
 write_rds(test_data_p, "data/aspatial/test_data_p.rds")
 ```
 
 ### **14.11.3 Calculating Root Mean Square Error**
 
 ```{r}
+#| eval: false
 rmse(test_data_p$resale_price, 
      test_data_p$GRF_pred)
 ```
@@ -367,6 +384,7 @@ rmse(test_data_p$resale_price,
 ### **14.11.4 Visualising the predicted values**
 
 ```{r}
+#| eval: false
 ggplot(data = test_data_p,
        aes(x = GRF_pred,
            y = resale_price)) +
