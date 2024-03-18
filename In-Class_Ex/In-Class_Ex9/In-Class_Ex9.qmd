@@ -1,0 +1,282 @@
+---
+title: "In-Class_Ex9"
+format: html
+date-modified: "last-modified"
+execute:  
+  warning: false
+  freeze: true
+  message: false 
+  eval: true 
+  echo: true 
+  fig-retine: 3
+date: "`r Sys.Date()`"
+---
+
+```{r}
+pacman::p_load(sf, sfdep, GWmodel,
+               SpatialML, tmap, 
+               rsample, tidymodels, 
+               tidyverse, gtsummary, 
+               rpart, rpart.plot,
+               ggstatsplot, performance)
+
+```
+
+```{r}
+rs_sf <- read_rds('data/rds/HDB_resale.rds')
+```
+
+Data Sampling
+
+```{r}
+set.seed(1234)
+resale_split <- initial_split(
+  rs_sf, 
+  prop = 5/10,)
+
+train_sf <- training(resale_split)
+test_sf <- testing(resale_split)
+
+```
+
+must have set.seed
+
+Always retrieve the data (do not put #\| eval: False on read_rds)
+
+prop = 5/10 –\> split it into 50%, 50%
+
+```{r}
+train_df <- train_sf %>% 
+  st_drop_geometry() %>% 
+  as.data.frame()
+
+test_df <- test_sf %>%
+  st_drop_geometry()%>% 
+  as.data.frame()
+```
+
+```{r}
+#| fig-width: 12 
+rs_sf1 <- rs_sf %>% 
+  st_drop_geometry()
+ggcorrmat(rs_sf1[,2:17])
+
+```
+
+```{r}
+train_df <- train_df %>% 
+  select(-c(PROX_CHAS))
+train_sf <- train_sf %>% 
+  select(-c(PROX_CHAS))
+test_df <- test_df %>% 
+  select (-c(PROX_CHAS))
+test_sf <- test_sf %>% 
+  select (-c(PROX_CHAS))
+```
+
+-c -\> exclude PROX_CHAS
+
+```{r}
+rs_mlr <- lm(formula = RESALE_PRICE ~ 
+               FLOOR_AREA_SQM + 
+               STOREY_ORDER + 
+               REMAINING_LEASE_MTHS + 
+               PROX_CBD+ 
+               PROX_ELDERLYCARE + 
+               PROX_HAWKER + 
+               PROX_MRT + 
+               PROX_PARK + 
+               PROX_GOOD_PRISCH + 
+               PROX_MALL + 
+               PROX_SUPERMARKET + 
+               WITHIN_350M_KINDERGARTEN + 
+               WITHIN_350M_CHILDCARE + 
+               WITHIN_350M_BUS + 
+               WITHIN_1KM_PRISCH, 
+             data = train_df)
+```
+
+```{r}
+coords <- st_coordinates(rs_sf)
+coords_train <- st_coordinates(train_sf)
+coords_test <- st_coordinates(test_sf)
+```
+
+explicitly extract the coordinates from sf
+
+```{r}
+set.seed(1234)
+rs_rp <-  rpart(
+  formula = RESALE_PRICE ~ 
+               FLOOR_AREA_SQM + 
+               STOREY_ORDER + 
+               REMAINING_LEASE_MTHS + 
+               PROX_CBD+ 
+               PROX_ELDERLYCARE + 
+               PROX_HAWKER + 
+               PROX_MRT + 
+               PROX_PARK + 
+               PROX_GOOD_PRISCH + 
+               PROX_MALL + 
+               PROX_SUPERMARKET + 
+               WITHIN_350M_KINDERGARTEN + 
+               WITHIN_350M_CHILDCARE + 
+               WITHIN_350M_BUS + 
+               WITHIN_1KM_PRISCH, 
+             data = train_df)
+rs_rp
+```
+
+```{r}
+rpart.plot(rs_rp)
+```
+
+```{r}
+set.seed(1234)
+rs_rf <-  ranger(
+  formula = RESALE_PRICE ~ 
+               FLOOR_AREA_SQM + 
+               STOREY_ORDER + 
+               REMAINING_LEASE_MTHS + 
+               PROX_CBD+ 
+               PROX_ELDERLYCARE + 
+               PROX_HAWKER + 
+               PROX_MRT + 
+               PROX_PARK + 
+               PROX_GOOD_PRISCH + 
+               PROX_MALL + 
+               PROX_SUPERMARKET + 
+               WITHIN_350M_KINDERGARTEN + 
+               WITHIN_350M_CHILDCARE + 
+               WITHIN_350M_BUS + 
+               WITHIN_1KM_PRISCH, 
+             data = train_df, 
+              importance =  "impurity")
+rs_rf
+```
+
+```{r}
+vi <- as.data.frame(rs_rf$variable.importance)
+```
+
+```{r}
+vi$variables <- rownames(vi)
+vi <- vi %>% 
+  rename(vi = 'rs_rf$variable.importance')
+```
+
+```{r}
+ggplot(data = vi, 
+       aes(x = vi, 
+           y = reorder(variables, vi)))+ 
+  geom_bar(stat='identity')
+```
+
+reorder() –\> arrange the column in order from. Otherwise, it will be order in alpha order
+
+```{r}
+#| eval: false  
+set.seed(1234)
+rs_grf <-  grf(
+  formula = RESALE_PRICE ~ 
+               FLOOR_AREA_SQM + 
+               STOREY_ORDER + 
+               REMAINING_LEASE_MTHS + 
+               PROX_CBD+ 
+               PROX_ELDERLYCARE + 
+               PROX_HAWKER + 
+               PROX_MRT + 
+               PROX_PARK + 
+               PROX_GOOD_PRISCH + 
+               PROX_MALL + 
+               PROX_SUPERMARKET + 
+               WITHIN_350M_KINDERGARTEN + 
+               WITHIN_350M_CHILDCARE + 
+               WITHIN_350M_BUS + 
+               WITHIN_1KM_PRISCH, 
+              data = train_df, 
+              kernal = "adaptive",
+              coords = coords_train, 
+              bw.min = 25, 
+              bw.max = 60 ,
+              step = 1, 
+              nthreads = 16, 
+              forest = False,
+              weighted = )
+```
+
+change the area scope to reduce the run time
+
+```{r}
+#| eval: false 
+test_df <- cbind(test_sf, coords_test) %>% 
+  st_drop_geometry()
+```
+
+```{r}
+#| eval: false 
+grf_pref <- predict.grf(rs_grf, 
+                        test_df, 
+                        x.var.name = "X", 
+                        y.var.name = "Y",
+                        local.w = 1, 
+                        global.w =1)
+
+```
+
+```{r}
+#| eval: false 
+grf_pred <- read_rds(data/models/grf_pred.rds)
+grf_pred_df <- as.data.frame(grf_pred)
+```
+
+```{r}
+#| eval: false 
+test_pred <- test_df %>% 
+  select(RESALE_PRICE)%>% 
+  cbind(grf_pred_df)
+```
+
+```{r}
+#| eval: false 
+rf_pred <- predict(rs_rf, test_df)
+```
+
+```{r}
+#| eval: false 
+rd_pred_df <- as.data.frame(rf_pred$predictions) %>% 
+  rename(rf_pred = "rf_pred$predictions")
+
+```
+
+```{r}
+#| eval: false 
+test_pred <- cbind(test_pred,
+                   rf_pref_df)
+```
+
+```{r}
+#| eval: false 
+mlr_pred <- predict(rs_mlr, test_df)
+```
+
+```{r}
+#| eval: false 
+mlr_pred_dr <- as.data.frame(mlr_pred) %>% 
+  rename(mlr_pred = "mlr_pred")
+```
+
+```{r}
+#| eval: false 
+yardstick::rmse(test_pred,
+                RESALE_PRICE,
+                mlr_pred)
+```
+
+```{r}
+#| eval: false 
+mc <- test_pred %>% 
+  pivot_longer(cols = c(2:4),
+               names_to = "models",
+               values_to = "predicted")
+```
