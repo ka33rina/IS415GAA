@@ -23,7 +23,7 @@ In the following part, I will be analyse the types of recycling facilities in Ho
 ### 2.1 Getting Started
 
 ```{r}
-pacman::p_load(arrow, lubridate, tidyverse, sf, spNetwork, raster, spatstat, tmap, readxl)
+pacman::p_load(arrow, lubridate, tidyverse, sf, sfdep, sp, spNetwork, spdep, raster, spatstat, tmap, readxl, plotly)
 ```
 
 ```{r}
@@ -202,7 +202,7 @@ smart_bins_by_district <- smart_bins_cp %>%
 pcp_map <- tm_shape(private_collection_points_by_district) +
   tm_fill(col = "total_pcp") +
   tm_borders() +
-  tm_layout(legend.show = TRUE, main.title = "Distribution of Private Collection Points by District",main.title.position = "center", main.title.size = 0.5)+
+  tm_layout(legend.show = TRUE, main.title = "Distribution of Private Collection Points by District",main.title.position = "center", main.title.size = 0.75)+
   tm_scale_bar()
 
 ```
@@ -211,7 +211,7 @@ pcp_map <- tm_shape(private_collection_points_by_district) +
 ngo_cp_map <- tm_shape(ngo_cp_by_district) +
   tm_fill(col = "total_ngo_cp") +
   tm_borders() +
-  tm_layout(legend.show = TRUE, main.title = "Distribution of NGO Points by District", main.title.position = "center", main.title.size = 1)+
+  tm_layout(legend.show = TRUE, main.title = "Distribution of NGO Points by District", main.title.position = "center", main.title.size = 0.75)+
   tm_scale_bar()
 ```
 
@@ -219,7 +219,7 @@ ngo_cp_map <- tm_shape(ngo_cp_by_district) +
 recycling_spots_map <- tm_shape(recycling_spots_by_district) +
   tm_fill(col = "total_recycling_spots") +
   tm_borders() +
-  tm_layout(legend.show = TRUE, main.title = "Distribution of Recycling Spots by District",main.title.position = "center", main.title.size = 1)+
+  tm_layout(legend.show = TRUE, main.title = "Distribution of Recycling Spots by District",main.title.position = "center", main.title.size = 0.75)+
   tm_scale_bar()
 ```
 
@@ -227,7 +227,7 @@ recycling_spots_map <- tm_shape(recycling_spots_by_district) +
 recycling_bins_map <- tm_shape(recycling_bins_by_district) +
   tm_fill(col = "total_recycling_bins") +
   tm_borders() +
-  tm_layout(legend.show = TRUE, main.title = "Distribution of Recycling Bins by District", main.title.position = "center", main.title.size = 1)+
+  tm_layout(legend.show = TRUE, main.title = "Distribution of Recycling Bins by District", main.title.position = "center", main.title.size = 0.75)+
   tm_scale_bar()
 ```
 
@@ -235,7 +235,7 @@ recycling_bins_map <- tm_shape(recycling_bins_by_district) +
 recycling_stations_map <- tm_shape(recycling_stations_by_district) +
   tm_fill(col = "total_recycling_stations") +
   tm_borders() +
-  tm_layout(legend.show = TRUE, main.title = "Distribution of Recycling Stations by District", main.title.position = "center", main.title.size = 1)+
+  tm_layout(legend.show = TRUE, main.title = "Distribution of Recycling Stations by District", main.title.position = "center", main.title.size = 0.75)+
   tm_scale_bar()
 ```
 
@@ -243,7 +243,7 @@ recycling_stations_map <- tm_shape(recycling_stations_by_district) +
 street_corner_shops_map <- tm_shape(street_corner_shops_by_district) +
   tm_fill(col = "total_street_corner") +
   tm_borders() +
-  tm_layout(legend.show = TRUE,main.title = "Distribution of Street Corner by District", main.title.position = "center", main.title.size = 1)+
+  tm_layout(legend.show = TRUE,main.title = "Distribution of Street Corner Shops by District", main.title.position = "center", main.title.size = 0.75)+
   tm_scale_bar()
 ```
 
@@ -251,26 +251,104 @@ street_corner_shops_map <- tm_shape(street_corner_shops_by_district) +
 smart_bin_map <- tm_shape(smart_bins_by_district) +
   tm_fill(col = "total_smart_bins") +
   tm_borders() +
-  tm_layout(legend.show = TRUE,main.title = "Distribution of Smart Bins by District",main.title.position = "center", main.title.size = 1)+
+  tm_layout(legend.show = TRUE,main.title = "Distribution of Smart Bins by District",main.title.position = "center", main.title.size = 0.75)+
   tm_scale_bar()
 ```
 
 ```{r}
-# Adjusting the layout for better arrangement
-tmap_arrange(
-  pcp_map,
-  ngo_cp_map,
-  recycling_spots_map,
-  recycling_bins_map,
-  recycling_stations_map,
-  street_corner_shops_map,
-  smart_bin_map,
-  ncol = 2,
-  asp = 0,    # Set aspect ratio to 0 to allow individual resizing of maps
-  widths = c(1, 1),   # Set the relative widths of columns
-  heights = c(1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5)   # Set the relative heights of rows
-)
+smart_bin_map
+```
 
+```{r}
+tmap_arrange(pcp_map,recycling_spots_map, recycling_bins_map, ncol=2)
+```
+
+```{r}
+tmap_arrange(ngo_cp_map, recycling_stations_map, street_corner_shops_map, smart_bin_map, ncol = 2)
+```
+
+#### Private Collection Points 
+
+```{r}
+wm_q_pcp <- private_collection_points_by_district %>%
+  mutate(nb = st_contiguity(geometry, queen = TRUE),
+         wt = st_weights(nb,
+                         style = "W",
+                         allow_zero = TRUE),
+         .before = 1) 
+wm_q_pcp
+```
+
+```{r}
+set.seed(1234)
+global_moran_perm(wm_q_pcp$total_pcp,
+                       wm_q_pcp$nb,
+                       wm_q_pcp$wt,
+                  zero.policy = TRUE,
+                  nsim = 999)
+```
+
+```{r}
+lisa_pcp <- wm_q_pcp %>% 
+  mutate(local_moran = local_moran(
+    total_pcp, nb, wt, zero.policy = TRUE, nsim = 99),
+         .before = 1) %>%
+  unnest(local_moran)
+```
+
+```{r}
+lisa_sig_pcp <- lisa_pcp  %>%
+  filter(p_ii < 0.05)
+
+tmap_mode("plot")
+tm_shape(lisa_pcp) +
+  tm_polygons() +
+  tm_borders(alpha = 0.7) +
+tm_shape(lisa_pcp) +
+  tm_fill("mean") + 
+  tm_borders(alpha = 0.4)
+```
+
+#### Recycling Spots 
+
+```{r}
+wm_q_rspots <- recycling_spots_by_district %>%
+  mutate(nb = st_contiguity(geometry, queen = TRUE),
+         wt = st_weights(nb,
+                         style = "W",
+                         allow_zero = TRUE),
+         .before = 1) 
+wm_q_rspots
+```
+
+```{r}
+set.seed(1234)
+global_moran_perm(wm_q_rspots$total_recycling_spots,
+                       wm_q_rspots$nb,
+                       wm_q_rspots$wt,
+                  zero.policy = TRUE,
+                  nsim = 999)
+```
+
+```{r}
+lisa_rspots <- wm_q_rspots %>% 
+  mutate(local_moran = local_moran(
+    total_recycling_spots, nb, wt, zero.policy = TRUE, nsim = 99),
+         .before = 1) %>%
+  unnest(local_moran)
+```
+
+```{r}
+lisa_sig_rspots <- lisa_rspots  %>%
+  filter(p_ii < 0.05)
+
+tmap_mode("plot")
+tm_shape(lisa_rspots) +
+  tm_polygons() +
+  tm_borders(alpha = 0.7) +
+tm_shape(lisa_rspots) +
+  tm_fill("mean") + 
+  tm_borders(alpha = 0.4)
 ```
 
 ### 2.4 NKDE
