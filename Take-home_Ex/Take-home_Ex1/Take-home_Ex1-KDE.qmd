@@ -15,7 +15,7 @@ editor: visual
 
 ```{r}
 pacman::p_load(arrow, lubridate, tidyverse,
-               maptools, sf, spNetwork, 
+               sf, spNetwork, 
                raster, spatstat, tmap)
 ```
 
