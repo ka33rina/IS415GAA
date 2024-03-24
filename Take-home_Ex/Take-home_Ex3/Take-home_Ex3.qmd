@@ -16,11 +16,9 @@ date: "`r Sys.Date()`"
 
 This take-home exercise will be showcasing the analysis we will be working in our project. Also, it will include the storyboard of our project in terms of the UI design and prototype of our Shiny Application.
 
-In the following part, I will be analyse t
-
-# 2. Network Kernal Density Estimate (NKDE)
-
 In the following part, I will be analyse the types of recycling facilities in Hong Kong. Further on, I will conduct Network Kernal Density Estimate (NKDE) for our project.
+
+# 2. Analysis on the type of recycling facilities in Hong Kong 
 
 ### 2.1 Getting Started
 
@@ -349,7 +347,9 @@ tm_basemap("OpenStreetMap")
 
 # **3. Storyboard**
 
-In our analysis, we will be doing a recycling points analysis in Hong Kong. Given
+For our project, we will be analysing the recycling points in Hong Kong and observe its distribution over the 18 districts in Hong Kong. Afterwards, we will further analyse on the districts with high adn low density. We hope to seek to identify the gaps in coverage and areas with lack of recycling facilities. Therefore, in our application, we hope to visualize the recycling facilities in each district.
+
+The next part will go through the features and design of our application.
 
 # **4. UI Design & Prototype**
 
