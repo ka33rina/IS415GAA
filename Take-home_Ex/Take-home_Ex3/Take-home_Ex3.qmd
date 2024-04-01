@@ -18,12 +18,12 @@ This take-home exercise will be showcasing the analysis we will be working in ou
 
 In the following part, I will be analyse the types of recycling facilities in Hong Kong. Further on, I will conduct Network Kernal Density Estimate (NKDE) for our project.
 
-# 2. Analysis on the type of recycling facilities in Hong Kong 
+# 2. Analysis on the type of recycling facilities in Hong Kong
 
 ### 2.1 Getting Started
 
 ```{r}
-pacman::p_load(arrow, lubridate, tidyverse, sf, sfdep, sp, spNetwork, spdep, raster, spatstat, tmap, readxl, plotly)
+pacman::p_load(arrow, dplyr, lubridate, tidyverse, sf, sfdep, sp, spNetwork, spdep, raster, spatstat, tmap, readxl, plotly)
 ```
 
 ```{r}
@@ -89,7 +89,69 @@ st_crs(sf_district_18)
 plot(st_geometry(sf_district_18))
 ```
 
-##### 2.2.2.3 Road Data in Hong Kong
+##### 2.2.2.3 Tertiary Planning Units (TPU) in Hong Kong
+
+```{r}
+tpu_hk <- st_read(dsn = "data/geospatial/TertiaryPlanningUnit_SHP", 
+                  layer = "TPU")
+```
+
+```{r}
+st_crs(tpu_hk)
+```
+
+```{r}
+plot(st_geometry(tpu_hk))
+```
+
+##### 2.2.2.4 Deriving SPU layer of Hong Kong
+
+```{r}
+spu_layer <- tpu_hk %>%
+  group_by(SPU_NUMBER) %>%
+  summarise()
+```
+
+```{r}
+plot(st_geometry(spu_layer))
+```
+
+```{r}
+spu_with_district <- st_within(spu_layer, sf_district_18)
+
+```
+
+```{r}
+tmap_mode("plot")
+
+# Plot
+private_cp_spu_map <- tm_shape(spu_layer) +
+  tm_polygons() + # SPU shapes colored by point count
+  tm_shape(private_collection_points) +
+  tm_dots(col = "district_id", size = 0.1, palette = "Set1", title = "District") + # Points colored by district
+  tm_layout(legend.position = c("left", "bottom"))
+
+print(private_cp_spu_map)
+```
+
+```{r}
+tmap_mode("plot")
+
+# Plot
+public_cp_spu_map <- tm_shape(spu_layer) +
+  tm_polygons() + # SPU shapes colored by point count
+  tm_shape(recycling_bins) +
+  tm_dots(col = "district_id", size = 0.1, palette = "Set1", title = "District") + # Points colored by district
+  tm_layout(legend.position = c("left", "bottom"))
+
+print(public_cp_spu_map)
+```
+
+```{r}
+
+```
+
+##### 2.2.2.4 Road Data in Hong Kong
 
 ```{r}
 #| eval: false
@@ -256,18 +318,16 @@ smart_bin_map <- tm_shape(smart_bins_by_district) +
 ```
 
 ```{r}
-smart_bin_map
-```
-
-```{r}
 tmap_arrange(pcp_map,recycling_spots_map, recycling_bins_map, ncol=2)
 ```
+
+From the above visualizations,
 
 ```{r}
 tmap_arrange(ngo_cp_map, recycling_stations_map, street_corner_shops_map, smart_bin_map, ncol = 2)
 ```
 
-#### Private Collection Points 
+#### 2.3.1 Private Collection Points
 
 ```{r}
 wm_q_pcp <- private_collection_points_by_district %>%
@@ -309,7 +369,49 @@ tm_shape(lisa_pcp) +
   tm_borders(alpha = 0.4)
 ```
 
-#### Recycling Spots 
+#### 2.3.2 Recycling Bins
+
+```{r}
+wm_q_rbins <- recycling_bins_by_district %>%
+  mutate(nb = st_contiguity(geometry, queen = TRUE),
+         wt = st_weights(nb,
+                         style = "W",
+                         allow_zero = TRUE),
+         .before = 1) 
+wm_q_rbins
+```
+
+```{r}
+set.seed(1234)
+global_moran_perm(wm_q_rbins$total_recycling_bins,
+                       wm_q_rbins$nb,
+                       wm_q_rbins$wt,
+                  zero.policy = TRUE,
+                  nsim = 999)
+```
+
+```{r}
+lisa_rbins <- wm_q_rbins %>% 
+  mutate(local_moran = local_moran(
+    total_recycling_bins, nb, wt, zero.policy = TRUE, nsim = 99),
+         .before = 1) %>%
+  unnest(local_moran)
+```
+
+```{r}
+lisa_sig_rspots <- lisa_rbins  %>%
+  filter(p_ii < 0.05)
+
+tmap_mode("plot")
+tm_shape(lisa_rbins) +
+  tm_polygons() +
+  tm_borders(alpha = 0.7) +
+tm_shape(lisa_rbins) +
+  tm_fill("mean") + 
+  tm_borders(alpha = 0.4)
+```
+
+#### 2.3.2 Recycling Spots
 
 ```{r}
 wm_q_rspots <- recycling_spots_by_district %>%
@@ -351,6 +453,79 @@ tm_shape(lisa_rspots) +
   tm_borders(alpha = 0.4)
 ```
 
+### 2.5 Type of Waste
+
+```{r}
+unique_waste_types <- cp_sf_1 %>%
+  pull(waste_type) %>% # Extract the waste_type column
+  strsplit(split = ",") %>% # Split each string into separate elements
+  unlist() %>% # Flatten the list into a single vector
+  trimws() %>% # Trim whitespace
+  unique() # Extract unique elements
+
+# Display the unique waste types
+print(unique_waste_types)
+```
+
+```{r}
+cp_sf_1_expanded <- cp_sf_1 %>%
+  # Separate the waste_type column into multiple rows
+  separate_rows(waste_type, sep = ",") %>%
+  # Trim whitespace to ensure consistency
+  mutate(waste_type = trimws(waste_type))
+```
+
+```{r}
+# Example: Group by waste_type and summarise or perform operations
+cp_sf_1_grouped_by_waste_type <- cp_sf_1_expanded %>%
+  group_by(waste_type) %>%
+  summarise(number_of_points = n())
+
+# This will give you a summary dataframe where each waste type has an associated count of recycling points.
+```
+
+```{r}
+cp_sf_1_separated <- cp_sf_1 %>%
+  separate_rows(waste_type, sep = ",") %>%
+  mutate(waste_type = trimws(waste_type))
+```
+
+```{r}
+tm_map <- tm_shape(cp_sf_1_separated) + 
+  tm_dots(col = "waste_type", palette = "viridis", title = "Waste Type",
+          popup.vars = c("Waste Type" = "waste_type")) +  # Show waste type in popup
+  tm_basemap(server = "OpenStreetMap") +
+  tm_layout(title = "Recycling Points in Hong Kong by Waste Type")
+
+# Print the map
+tm_map
+```
+
+```{r}
+cp_sf_1_joined <- st_join(sf_district_18,cp_sf_1_separated)
+```
+
+```{r}
+cp_sf_1_grouped <- cp_sf_1_joined %>%
+  group_by(ENAME, waste_type) 
+
+# View the result
+head(cp_sf_1_grouped)
+```
+
+```{r}
+tmap_mode("view")
+
+# Create the map
+tm_map <- tm_shape(cp_sf_1_expanded) + 
+  tm_dots(col = "waste_type", palette = "viridis", title = "Waste Type", popup.vars = c("Waste Type" = "waste_type", "Points" = "number_of_points")) +
+  tm_basemap(server = "OpenStreetMap") +
+  tm_layout(title = "Recycling Points in Hong Kong by Waste Type")
+
+# Print the map
+tm_map
+```
+
 ### 2.4 NKDE
 
 ```{r}
@@ -372,10 +547,7 @@ if ("LINESTRING" %in% unique_types) {
 
 ```{r}
 unique_types <- unique(st_geometry_type(roads_in_hk))
-```
-
-```{r}
-roads_in_hk <- roads_in_hk[st_geometry_type(roads_in_hk) == "LINESTRING", ]
+print(unique_types)
 ```
 
 ```{r}
