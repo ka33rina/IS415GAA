@@ -1,0 +1,17 @@
+---
+title: "In-Class_Ex11_v2"
+---
+
+```{r}
+pacman::p_load(tmap, sf, spdep, sp, Matrix,
+               spflow, reshape2, knitr, 
+               tidyverse)
+```
+
+```{r}
+mpsz_nb <- read_rds("data/rds/mpsz_nb.rds")
+
+mpsz_flow <- read_rds("data/rds/mpsz_flow.rds")
+
+mpsz_var <- read_rds("data/rds/mpsz_var.rds")
+```
